@@ -2,6 +2,7 @@
 import express from "express";
 import dotenv from "dotenv";
 import cors from "cors";
+import path from "path";
 
 import {v2 as cloudinary} from "cloudinary";
 import cookieParser from "cookie-parser";
@@ -28,14 +29,17 @@ cloudinary.config({
 
 const app = express();
 const PORT = process.env.PORT || 5000;
+const __dirname = path.resolve(); // Get the current directory name
 app.use(express.json({ limit: "50mb" })); // to parse req.body
 // limit shouldn't be too high to prevent DOS
+if(process.env.NODE_ENV === "production") {
 	app.use(
 		cors({
 			origin: "http://localhost:5173", // Your Vite frontend URL
 			credentials: true, // Allow cookies to be sent with requests
 		})
 	);
+}
 
 app.use(express.urlencoded({ extended: true })); // to parse form data(urlencoded)
 
@@ -46,6 +50,12 @@ app.use("/api/auth", authRoutes);
 app.use("/api/user", userRoutes);
 app.use("/api/courses", lectureRoutes);
 app.use("/api/admin", adminRoutes);
+if(process.env.NODE_ENV !== "production") {
+app.use(express.static(path.join(__dirname, "../frontend/dist")));
+app.get("*", (req, res) => {
+	res.sendFile(path.join(__dirname, "../frontend/dist/index.html"));
+});
+}
 
 
 app.listen(PORT, () => {
