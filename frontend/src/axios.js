@@ -1,12 +1,13 @@
-// src/axios.js
 import axios from "axios";
 
 const BASE_URL =
   import.meta.env.MODE === "development"
-    ? "https://edualtech.onrender.com/api"
-    : "/api";
+    ? "http://localhost:5000/api" // ⬅️ use local backend when developing
+    : "https://edualtech.onrender.com/api"; // ⬅️ production backend
+
 const api = axios.create({
   baseURL: BASE_URL,
-  withCredentials: true, // This allows cookies to be sent with requests
+  withCredentials: true, // ✅ makes browser send cookies with every request
 });
+
 export default api;
