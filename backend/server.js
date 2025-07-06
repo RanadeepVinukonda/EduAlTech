@@ -1,71 +1,64 @@
+
 import express from "express";
 import dotenv from "dotenv";
 import cors from "cors";
 import path from "path";
-import cookieParser from "cookie-parser";
-import { v2 as cloudinary } from "cloudinary";
 
-// Routes
+import {v2 as cloudinary} from "cloudinary";
+import cookieParser from "cookie-parser";
+
+
+
 import authRoutes from "./routes/authRoutes.js";
 import userRoutes from "./routes/userRoutes.js";
 import lectureRoutes from "./routes/lectureRoutes.js";
 import adminRoutes from "./routes/adminRoutes.js";
 
-// DB Connection
-import connectMongoDB from "./db/connectMongoDB.js";
 
+
+import connectMongoDB from "./db/connectMongoDB.js";	
 dotenv.config();
-const app = express();
-const PORT = process.env.PORT || 5000;
-const __dirname = path.resolve(); // for static path resolution
-
-// Cloudinary Config
 cloudinary.config({
-  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
-  api_key: process.env.CLOUDINARY_API_KEY,
-  api_secret: process.env.CLOUDINARY_API_SECRET,
+	cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+	api_key: process.env.CLOUDINARY_API_KEY,
+	api_secret: process.env.CLOUDINARY_API_SECRET,
 });
 
-// CORS Configuration
-const allowedOrigins = [
-  "http://localhost:5173", // for local frontend
-  "https://edu-al-tech.vercel.app", // for Vercel deployment
-];
 
-app.use(
-  cors({
-    origin: function (origin, callback) {
-      if (!origin || allowedOrigins.includes(origin)) {
-        callback(null, true);
-      } else {
-        callback(new Error("Not allowed by CORS"));
-      }
-    },
-    credentials: true, // allow cookies
-  })
-);
 
-// Middleware
-app.use(express.json({ limit: "50mb" }));
-app.use(express.urlencoded({ extended: true }));
+
+const app = express();
+const PORT = process.env.PORT || 5000;
+const __dirname = path.resolve(); // Get the current directory name
+app.use(express.json({ limit: "50mb" })); // to parse req.body
+// limit shouldn't be too high to prevent DOS
+if(process.env.NODE_ENV === "production") {
+	app.use(
+    cors({
+      origin: ["http://localhost:5173", "https://edu-al-tech.vercel.app/"], // Your Vite frontend URL
+      credentials: true, // Allow cookies to be sent with requests
+    })
+  );
+}
+
+app.use(express.urlencoded({ extended: true })); // to parse form data(urlencoded)
+
+
 app.use(cookieParser());
 
-// Routes
 app.use("/api/auth", authRoutes);
 app.use("/api/user", userRoutes);
 app.use("/api/courses", lectureRoutes);
 app.use("/api/admin", adminRoutes);
-
-// Serve frontend in production
-if (process.env.NODE_ENV === "production") {
-  app.use(express.static(path.join(__dirname, "../frontend/dist")));
-  app.get("*", (req, res) =>
-    res.sendFile(path.join(__dirname, "../frontend/dist/index.html"))
-  );
+if(process.env.NODE_ENV !== "production") {
+app.use(express.static(path.join(__dirname, "../frontend/dist")));
+app.get("*", (req, res) => {
+	res.sendFile(path.join(__dirname, "../frontend/dist/index.html"));
+});
 }
 
-// Start server
+
 app.listen(PORT, () => {
-  console.log(`🚀 Server is running on port ${PORT}`);
-  connectMongoDB();
+	console.log(`Server is running on port ${PORT}`);
+	connectMongoDB();
 });
