@@ -2,8 +2,8 @@ import axios from "axios";
 
 const BASE_URL =
   import.meta.env.MODE === "development"
-    ? "https://edualtech.onrender.com/api" // ⬅️ use local backend when developing
-    : "/api"; // ⬅️ production backend
+    ? "http://localhost:5000/api"
+    : "https://edualtech.onrender.com/api";
 
 const api = axios.create({
   baseURL: BASE_URL,
