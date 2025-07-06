@@ -1,6 +1,6 @@
 import express from "express";
 import multer from "multer";
-import { addLecture, getMyLectures ,getAllLectures,deleteLecture} from "../controllers/lectureController.js";
+import { addLecture, getMyLectures ,getAllLectures,deleteLecture} from "../controllers/lecturecontroller.js";
 import { protectRoute, authorizeRoles,authMiddleware } from "../middleware/auth.js";
 
 const router = express.Router();
