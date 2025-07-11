@@ -33,12 +33,6 @@ const CourseCard = ({ lecture }) => {
           {lecture.uploadedBy?.fullName || "Unknown"}
         </span>
         /* Add delete functionality if needed */
-        <button
-          onClick={() => deleteUser(u._id)}
-          className="btn btn-sm btn-error"
-        >
-          Delete
-        </button>
       </p>
       <Link to={`/course/${lecture._id}`}>
         <button className="btn btn-sm btn-success mt-2">Watch Now</button>
