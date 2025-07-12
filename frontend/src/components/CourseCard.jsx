@@ -1,7 +1,22 @@
 import React from "react";
 import { Link } from "react-router";
 
+const deleteLecture = async (id) => {
+  if (!window.confirm("Delete this lecture?")) return;
+  try {
+    await api.delete(`/admin/lecture/${id}`, { withCredentials: true });
+    toast.success("Lecture deleted");
+    fetchLectures();
+  } catch (err) {
+    toast.error("Failed to delete lecture");
+  }
+};
 
+const DeleteLectureBadedOnRoles = () => {
+  if (user?.role === "provider")
+    return (deleteLecture);
+};
+const dynamicDelete = DeleteLectureBadedOnRoles();
 const CourseCard = ({ lecture }) => {
   return (
     <div className="bg-white border border-green-100 rounded-lg shadow-md p-4 hover:shadow-lg transition duration-300">
@@ -37,6 +52,14 @@ const CourseCard = ({ lecture }) => {
       <Link to={`/course/${lecture._id}`}>
         <button className="btn btn-sm btn-success mt-2">Watch Now</button>
       </Link>
+      <div className="card-actions justify-end">
+        <button
+          onClick={() => dynamicDelete(lec._id)}
+          className="btn btn-sm btn-error"
+        >
+          Delete
+        </button>
+      </div>
     </div>
   );
 };

@@ -37,7 +37,8 @@ const allowedOrigins = [
   "https://edu-al-tech.vercel.app",
   "https://edu-al-tech.vercel.app/", // without trailing slash (important!)
   "https://www.edualtech.xyz",
-  "https://edualtech.xyz", // without www too, just in case
+  "https://edualtech.xyz",
+  "https://edualtech.onrender.com", // without www too, just in case
 ];
 
 app.use(
