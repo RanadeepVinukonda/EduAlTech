@@ -35,7 +35,11 @@ app.use(express.json({ limit: "50mb" })); // to parse req.body
 if(process.env.NODE_ENV === "production") {
 	app.use(
     cors({
-      origin: ["http://localhost:5173", "https://edu-al-tech.vercel.app/"], // Your Vite frontend URL
+      origin: [
+        "http://localhost:5173",
+        "https://edu-al-tech.vercel.app/",
+        "https://www.edualtech.xyz",
+      ], // Your Vite frontend URL
       credentials: true, // Allow cookies to be sent with requests
     })
   );
