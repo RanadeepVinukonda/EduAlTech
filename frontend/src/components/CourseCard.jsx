@@ -1,24 +1,23 @@
 import React from "react";
 import { Link } from "react-router";
-import api from "../axios"; 
+import { toast } from "react-hot-toast";
+import api from "../axios";
+import { useAuth } from "../context/AuthProvider"; // or wherever your auth hook is
 
-const deleteLecture = async (id) => {
-  if (!window.confirm("Delete this lecture?")) return;
-  try {
-    await api.delete(`/admin/lecture/${id}`, { withCredentials: true });
-    toast.success("Lecture deleted");
-    fetchLectures();
-  } catch (err) {
-    toast.error("Failed to delete lecture");
-  }
-};
+const CourseCard = ({ lecture, fetchLectures }) => {
+  const { user } = useAuth();
 
-const DeleteLectureBadedOnRoles = () => {
-  if (user?.role === "provider")
-    return (deleteLecture);
-};
-const dynamicDelete = DeleteLectureBadedOnRoles();
-const CourseCard = ({ lecture }) => {
+  const deleteLecture = async (id) => {
+    if (!window.confirm("Delete this lecture?")) return;
+    try {
+      await api.delete(`/admin/lecture/${id}`, { withCredentials: true });
+      toast.success("Lecture deleted");
+      fetchLectures(); // must be passed from parent
+    } catch (err) {
+      toast.error("Failed to delete lecture");
+    }
+  };
+
   return (
     <div className="bg-white border border-green-100 rounded-lg shadow-md p-4 hover:shadow-lg transition duration-300">
       {lecture.thumbnailUrl ? (
@@ -48,19 +47,20 @@ const CourseCard = ({ lecture }) => {
         <span className="text-green-600 font-medium">
           {lecture.uploadedBy?.fullName || "Unknown"}
         </span>
-        /* Add delete functionality if needed */
       </p>
       <Link to={`/course/${lecture._id}`}>
         <button className="btn btn-sm btn-success mt-2">Watch Now</button>
       </Link>
-      <div className="card-actions justify-end">
-        <button
-          onClick={() => dynamicDelete(lec._id)}
-          className="btn btn-sm btn-error"
-        >
-          Delete
-        </button>
-      </div>
+      {user?.role === "provider" && (
+        <div className="card-actions justify-end">
+          <button
+            onClick={() => deleteLecture(lecture._id)}
+            className="btn btn-sm btn-error"
+          >
+            Delete
+          </button>
+        </div>
+      )}
     </div>
   );
 };
