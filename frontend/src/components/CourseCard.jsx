@@ -1,5 +1,6 @@
 import React from "react";
 import { Link } from "react-router";
+import api from "../axios"; 
 
 const deleteLecture = async (id) => {
   if (!window.confirm("Delete this lecture?")) return;
