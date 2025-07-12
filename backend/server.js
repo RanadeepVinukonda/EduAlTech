@@ -35,7 +35,9 @@ app.use(express.json({ limit: "50mb" })); // to parse req.body
 const allowedOrigins = [
   "http://localhost:5173",
   "https://edu-al-tech.vercel.app",
+  "https://edu-al-tech.vercel.app/", // without trailing slash (important!)
   "https://www.edualtech.xyz",
+  "https://edualtech.xyz", // without www too, just in case
 ];
 
 app.use(
@@ -44,12 +46,14 @@ app.use(
       if (!origin || allowedOrigins.includes(origin)) {
         callback(null, true);
       } else {
+        console.error("❌ Blocked by CORS:", origin);
         callback(new Error("Not allowed by CORS"));
       }
     },
     credentials: true,
   })
 );
+
 
 app.use(express.urlencoded({ extended: true })); // to parse form data(urlencoded)
 
