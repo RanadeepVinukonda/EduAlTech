@@ -3,16 +3,19 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router";
 import { useAuth } from "../context/AuthProvider";
 import { toast } from "react-hot-toast";
-import api from "../axios"; // Adjust the path as necessary
+import api from "../axios";
 
 const UpdateProfile = () => {
   const { user, setUser } = useAuth();
   const navigate = useNavigate();
 
   const [form, setForm] = useState({
+    username: user?.username || "",
     fullName: user?.fullName || "",
     bio: user?.bio || "",
     link: user?.link || "",
+    phone: user?.phone || "",
+    address: user?.address || "",
     profileImg: null,
     coverImg: null,
   });
@@ -58,6 +61,15 @@ const UpdateProfile = () => {
 
         <input
           type="text"
+          name="username"
+          value={form.username}
+          onChange={handleChange}
+          placeholder="Username"
+          className="input input-bordered w-full"
+          required
+        />
+        <input
+          type="text"
           name="fullName"
           value={form.fullName}
           onChange={handleChange}
@@ -80,6 +92,23 @@ const UpdateProfile = () => {
           placeholder="Short Bio"
           className="textarea textarea-bordered w-full"
         />
+        <input
+          type="text"
+          name="phone"
+          value={form.phone}
+          onChange={handleChange}
+          placeholder="Phone Number"
+          className="input input-bordered w-full"
+        />
+        <input
+          type="text"
+          name="address"
+          value={form.address}
+          onChange={handleChange}
+          placeholder="Address"
+          className="input input-bordered w-full"
+        />
+
         <label className="block font-semibold">Profile Image</label>
         <input
           type="file"
@@ -88,6 +117,7 @@ const UpdateProfile = () => {
           onChange={handleChange}
           className="file-input file-input-bordered w-full"
         />
+
         <label className="block font-semibold">Cover Image</label>
         <input
           type="file"

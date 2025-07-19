@@ -35,10 +35,10 @@ app.use(express.json({ limit: "50mb" })); // to parse req.body
 const allowedOrigins = [
   "http://localhost:5173",
   "https://edu-al-tech.vercel.app",
-  "https://edu-al-tech.vercel.app/", // without trailing slash (important!)
+  "https://edu-al-tech.vercel.app/",
   "https://www.edualtech.xyz",
   "https://edualtech.xyz",
-  "https://edualtech.onrender.com", // without www too, just in case
+  "https://edualtech.onrender.com", 
 ];
 
 app.use(
@@ -65,6 +65,7 @@ app.use("/api/auth", authRoutes);
 app.use("/api/user", userRoutes);
 app.use("/api/courses", lectureRoutes);
 app.use("/api/admin", adminRoutes);
+
 if(process.env.NODE_ENV !== "production") {
 app.use(express.static(path.join(__dirname, "../frontend/dist")));
 app.get("*", (req, res) => {
