@@ -8,7 +8,7 @@ const ForgotPassword = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      await api.post("/forgot-password", { email }); // ✅ relative URL
+      await api.post("/user/forgot-password", { email }); // ✅ relative URL
       toast.success("Reset link sent to your email!");
     } catch (err) {
       toast.error(err.response?.data?.msg || "Something went wrong");
