@@ -55,16 +55,17 @@ app.use(
   })
 );
 
+app.use("/api/auth", authRoutes);
+app.use("/api/user", userRoutes);
+app.use("/api/courses", lectureRoutes);
+app.use("/api/admin", adminRoutes);
+
 
 app.use(express.urlencoded({ extended: true })); // to parse form data(urlencoded)
 
 
 app.use(cookieParser());
 
-app.use("/api/auth", authRoutes);
-app.use("/api/user", userRoutes);
-app.use("/api/courses", lectureRoutes);
-app.use("/api/admin", adminRoutes);
 
 if(process.env.NODE_ENV !== "production") {
 app.use(express.static(path.join(__dirname, "../frontend/dist")));
