@@ -2,6 +2,8 @@
 import { v2 as cloudinary } from "cloudinary";
 import User from "../models/usermodel.js";
 import bcrypt from "bcryptjs";
+import crypto from "crypto";
+import sendMail from "../lib/utils/sendMail.js"
 
 // helper: wrap upload_stream in a Promise
 const uploadToCloudinary = (buffer, folder) => {
@@ -91,5 +93,48 @@ export const updateUser = async (req, res) => {
   } catch (error) {
     console.error("Update Error:", error.message);
     res.status(500).json({ error: error.message });
+  }
+};
+export const forgotPassword = async (req, res) => {
+  const { email } = req.body;
+  try {
+    const user = await User.findOne({ email });
+    if (!user) return res.status(404).json({ msg: "User not found" });
+
+    const token = crypto.randomBytes(20).toString("hex");
+    user.resetToken = token;
+    user.resetTokenExpiry = Date.now() + 3600000; // valid for 1 hour
+    await user.save();
+
+    const resetUrl = `http://localhost:5173/reset-password/${token}`;
+    const message = `Click the link to reset your password: ${resetUrl}`;
+
+    await sendMail(email, "EduAltTech Password Reset", message);
+
+    res.status(200).json({ msg: "Reset link sent to email" });
+  } catch (err) {
+    res.status(500).json({ msg: "Server Error" });
+  }
+};
+
+export const resetPassword = async (req, res) => {
+  const { token } = req.params;
+  const { password } = req.body;
+  try {
+    const user = await User.findOne({
+      resetToken: token,
+      resetTokenExpiry: { $gt: Date.now() },
+    });
+
+    if (!user) return res.status(400).json({ msg: "Invalid or expired token" });
+
+    user.password = await bcrypt.hash(password, 12);
+    user.resetToken = undefined;
+    user.resetTokenExpiry = undefined;
+    await user.save();
+
+    res.status(200).json({ msg: "Password reset successful" });
+  } catch (err) {
+    res.status(500).json({ msg: "Server Error" });
   }
 };

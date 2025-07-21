@@ -20,6 +20,8 @@ import CoursePlayer from "./pages/CoursePlayer"; // for watch now
 import NotFound from "./pages/NotFound";
 import AdminDashboard from "./pages/AdminDashboard";
 import MyLectures from "./pages/MyLectures"; // for provider's lectures
+import ForgotPassword from "./pages/ForgotPassword";
+import ResetPassword from "./pages/ResetPassword";
 const App = () => {
   return (
     <div className="bg-white text-gray-800 min-h-screen flex flex-col font-sans">
@@ -81,6 +83,8 @@ const App = () => {
               </ProtectRoute>
             }
           />
+          <Route path="/forgot-password" element={<ForgotPassword />} />
+          <Route path="/reset-password/:token" element={<ResetPassword />} />
 
           {/* 404 Page */}
           <Route path="*" element={<NotFound />} />

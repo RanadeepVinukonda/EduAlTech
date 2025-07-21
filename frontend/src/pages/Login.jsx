@@ -52,14 +52,23 @@ export default function Login() {
           required
         />
 
+        <div className="flex justify-between items-center text-sm">
+          <span
+            className="text-green-600 cursor-pointer hover:underline"
+            onClick={() => navigate("/forgot-password")}
+          >
+            Forgot Password?
+          </span>
+        </div>
+
         <button type="submit" className="btn btn-success w-full">
           Login
         </button>
 
         <p className="text-sm text-center">
-          Don't have an account?{" "}
+          Don’t have an account?{" "}
           <span
-            className="text-green-600 cursor-pointer"
+            className="text-green-600 cursor-pointer hover:underline"
             onClick={() => navigate("/signup")}
           >
             Sign Up
