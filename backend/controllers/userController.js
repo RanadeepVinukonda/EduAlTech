@@ -97,23 +97,35 @@ export const updateUser = async (req, res) => {
 };
 export const forgotPassword = async (req, res) => {
   const { email } = req.body;
+  console.log("🔔 Forgot password called for:", email);
+
   try {
     const user = await User.findOne({ email });
-    if (!user) return res.status(404).json({ msg: "User not found" });
+    if (!user) {
+      console.log("❌ No user found");
+      return res.status(404).json({ msg: "User not found" });
+    }
 
     const token = crypto.randomBytes(20).toString("hex");
     user.resetToken = token;
-    user.resetTokenExpiry = Date.now() + 3600000; // valid for 1 hour
+    user.resetTokenExpiry = Date.now() + 3600000;
     await user.save();
 
-    const resetUrl = `http://localhost:5173/reset-password/${token}`;
-    const message = `Click the link to reset your password: ${resetUrl}`;
+    const resetUrl = `${
+      process.env.CLIENT_URL || "http://localhost:5173"
+    }/reset-password/${token}`;
+    const message = `Click to reset password:\n${resetUrl}`;
+
+    console.log("📤 Sending email to:", email);
+    console.log("🔗 Reset URL:", resetUrl);
 
     await sendMail(email, "EduAltTech Password Reset", message);
 
-    res.status(200).json({ msg: "Reset link sent to email" });
+    console.log("✅ Mail sent");
+    return res.status(200).json({ msg: "Reset link sent" });
   } catch (err) {
-    res.status(500).json({ msg: "Server Error" });
+    console.error("🔥 Forgot password error:", err);
+    return res.status(500).json({ msg: "Internal server error" });
   }
 };
 

@@ -41,7 +41,6 @@ export default function Login() {
           onChange={handleChange}
           required
         />
-
         <input
           type="password"
           name="password"
@@ -51,7 +50,6 @@ export default function Login() {
           onChange={handleChange}
           required
         />
-
         <div className="flex justify-between items-center text-sm">
           <span
             className="text-green-600 cursor-pointer hover:underline"
