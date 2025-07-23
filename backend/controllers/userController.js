@@ -3,7 +3,7 @@ import { v2 as cloudinary } from "cloudinary";
 import User from "../models/usermodel.js";
 import bcrypt from "bcryptjs";
 import crypto from "crypto";
-import sendMail from "../lib/utils/sendMail.js"
+import sendMail from "../lib/utils/sendMail.js";
 
 // helper: wrap upload_stream in a Promise
 const uploadToCloudinary = (buffer, folder) => {
@@ -97,35 +97,35 @@ export const updateUser = async (req, res) => {
 };
 export const forgotPassword = async (req, res) => {
   const { email } = req.body;
-  console.log("🔔 Forgot password called for:", email);
 
   try {
     const user = await User.findOne({ email });
+
     if (!user) {
-      console.log("❌ No user found");
       return res.status(404).json({ msg: "User not found" });
     }
 
+    // Generate secure reset token
     const token = crypto.randomBytes(20).toString("hex");
+
+    // Save token and expiry on user
     user.resetToken = token;
-    user.resetTokenExpiry = Date.now() + 3600000;
+    user.resetTokenExpiry = Date.now() + 1000 * 60 * 60; // valid for 1 hour
     await user.save();
 
-    const resetUrl = `${
-      process.env.CLIENT_URL || "http://localhost:5173"
-    }/reset-password/${token}`;
-    const message = `Click to reset password:\n${resetUrl}`;
+    // Reset URL for frontend
+    const resetUrl = `${process.env.CLIENT_URL}/reset-password/${token}`;
 
-    console.log("📤 Sending email to:", email);
-    console.log("🔗 Reset URL:", resetUrl);
+    // Send the email via Brevo
+    await sendMail(email, "EduAltTech Password Reset", resetUrl);
 
-    await sendMail(email, "EduAltTech Password Reset", message);
+    console.log(`🔔 Forgot password called for: ${email}`);
+    console.log(`🔗 Reset URL: ${resetUrl}`);
 
-    console.log("✅ Mail sent");
-    return res.status(200).json({ msg: "Reset link sent" });
+    res.status(200).json({ msg: "Reset link sent to email" });
   } catch (err) {
     console.error("🔥 Forgot password error:", err);
-    return res.status(500).json({ msg: "Internal server error" });
+    res.status(500).json({ msg: "Failed to send reset email" });
   }
 };
 

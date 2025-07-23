@@ -13,22 +13,28 @@ export const AuthProvider = ({ children }) => {
   const navigate = useNavigate();
 
   // ✅ Fetch user on app load (to handle cookies)
-  useEffect(() => {
-    const fetchUser = async () => {
-      try {
-        const res = await api.get("/auth/me", {
-          withCredentials: true,
-        });
-        setUser(res.data);
-      } catch (err) {
-        setUser(null);
-      } finally {
-        setLoading(false);
-      }
-    };
+useEffect(() => {
+  const fetchUser = async () => {
+    try {
+      const res = await fetch("/auth/me", {
+        method: "GET",
+        credentials: "include",
+      });
 
-    fetchUser();
-  }, []);
+      if (!res.ok) throw new Error("Failed to fetch user");
+
+      const data = await res.json();
+      setUser(data);
+    } catch (err) {
+      setUser(null);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  fetchUser();
+}, []);
+
 
   // ✅ Login function
   const login = async (credentials) => {
