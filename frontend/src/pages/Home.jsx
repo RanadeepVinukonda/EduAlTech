@@ -69,7 +69,7 @@ const Home = () => {
           <img
             src={welcomeImg}
             alt="Welcome banner"
-            className="rounded-lg w-full max-w-sm object-cover shadow-md"
+            className="rounded-lg w-full max-w-sm "
             loading="lazy"
           />
         </div>
