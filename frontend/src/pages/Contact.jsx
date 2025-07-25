@@ -1,7 +1,6 @@
 import React from "react";
 import { FaLinkedin } from "react-icons/fa";
 
-// Sample team data — update as needed
 const teamMembers = [
   {
     name: "Ranadeep Vinukonda",
@@ -13,25 +12,25 @@ const teamMembers = [
   },
   {
     name: "Satyanarayana Akula",
-    role: "",
-    email: "",
-    phone: "+91 ",
+    role: "Developer",
+    email: "satya@example.com",
+    phone: "+91 9876543210",
     image: "/team/ananya.jpg",
     linkedin: "",
   },
   {
     name: "Al Rihab Chandhini",
-    role: "",
-    email: "",
-    phone: "+91 ",
+    role: "Content Manager",
+    email: "rihab@example.com",
+    phone: "+91 9012345678",
     image: "/team/ravi.jpg",
     linkedin: "",
   },
   {
     name: "Uma Krishna Kanth Chokkapu",
-    role: "",
-    email: "",
-    phone: "+91 ",
+    role: "Backend Engineer",
+    email: "uma@example.com",
+    phone: "+91 7890123456",
     image: "/team/ravi.jpg",
     linkedin: "",
   },
@@ -39,18 +38,21 @@ const teamMembers = [
 
 const Contact = () => {
   return (
-    <div className="min-h-screen bg-white py-12 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-white px-4 py-12 sm:px-6 lg:px-8">
       <div className="max-w-6xl mx-auto text-center">
-        <h1 className="text-4xl font-bold text-green-600 mb-4">Contact Us</h1>
+        <h1 className="text-4xl font-extrabold text-green-600 mb-4">
+          Contact Us
+        </h1>
         <p className="text-gray-600 text-lg mb-10">
-          Meet the team behind EduAltTech. Reach out to us directly!
+          Meet the team behind <strong>EduAltTech</strong>. Reach out to us
+          directly!
         </p>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+        <div className="grid gap-8 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
           {teamMembers.map((member, idx) => (
             <div
               key={idx}
-              className="bg-green-50 shadow-md rounded-lg p-6 hover:shadow-lg transition"
+              className="bg-green-50 shadow-md rounded-xl p-6 hover:shadow-xl transition-all duration-300"
             >
               <img
                 src={member.image}
@@ -60,23 +62,35 @@ const Contact = () => {
               <h3 className="text-xl font-semibold text-green-700 mt-4">
                 {member.name}
               </h3>
-              <p className="text-green-500 font-medium">{member.role}</p>
-              <div className="mt-4 text-gray-600 text-sm">
-                <p>Email: {member.email}</p>
-                <p>Phone: {member.phone}</p>
+              <p className="text-green-500 text-sm mb-2">
+                {member.role || "Team Member"}
+              </p>
+
+              <div className="text-sm text-gray-700 space-y-1 mt-2">
+                {member.email && (
+                  <p>
+                    <span className="font-medium">Email:</span> {member.email}
+                  </p>
+                )}
+                {member.phone && (
+                  <p>
+                    <span className="font-medium">Phone:</span> {member.phone}
+                  </p>
+                )}
               </div>
 
-              {/* LinkedIn */}
-              <div className="mt-4">
-                <a
-                  href={member.linkedin}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center gap-2 text-blue-600 hover:underline text-sm"
-                >
-                  <FaLinkedin size={18} /> LinkedIn Profile
-                </a>
-              </div>
+              {member.linkedin && (
+                <div className="mt-4">
+                  <a
+                    href={member.linkedin}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-2 text-blue-600 hover:underline text-sm"
+                  >
+                    <FaLinkedin size={18} /> LinkedIn Profile
+                  </a>
+                </div>
+              )}
             </div>
           ))}
         </div>

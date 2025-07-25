@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router";
 import { useAuth } from "../context/AuthProvider";
-import api from "../axios"; // Adjust the path as necessary
+import api from "../axios";
 import { toast } from "react-hot-toast";
 
 export default function Signup() {
@@ -16,6 +16,8 @@ export default function Signup() {
     role: "seeker",
   });
 
+  const [loading, setLoading] = useState(false);
+
   const handleChange = (e) => {
     setForm((prev) => ({
       ...prev,
@@ -25,13 +27,11 @@ export default function Signup() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setLoading(true);
     try {
-      await api.post("/auth/signup", form, {
-        withCredentials: true,
-      });
+      await api.post("/auth/signup", form, { withCredentials: true });
       toast.success("Signup successful! Logging you in...");
 
-      // Auto-login after signup
       const ok = await login({
         username: form.username,
         password: form.password,
@@ -44,79 +44,94 @@ export default function Signup() {
       }
     } catch (err) {
       toast.error(err?.response?.data?.error || "Signup failed");
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-green-50 px-4">
+    <div className="min-h-screen flex items-center justify-center px-4 bg-base-200">
       <form
         onSubmit={handleSubmit}
-        className="bg-white shadow-lg p-8 rounded-lg max-w-md w-full space-y-4"
+        className="bg-white dark:bg-base-100 shadow-xl rounded-2xl p-8 w-full max-w-md md:max-w-lg space-y-5"
       >
-        <h2 className="text-2xl font-bold text-green-600 text-center">
-          Sign Up
+        <h2 className="text-3xl font-bold text-center text-primary">
+          Create Your Account
         </h2>
 
-        {/* Input fields */}
-        <input
-          type="text"
-          name="fullName"
-          placeholder="Full Name"
-          value={form.fullName}
-          onChange={handleChange}
-          className="input input-bordered w-full"
-          required
-        />
+        <div className="form-control">
+          <input
+            type="text"
+            name="fullName"
+            placeholder="Full Name"
+            value={form.fullName}
+            onChange={handleChange}
+            className="input input-bordered w-full"
+            required
+          />
+        </div>
 
-        <input
-          type="text"
-          name="username"
-          placeholder="Username"
-          value={form.username}
-          onChange={handleChange}
-          className="input input-bordered w-full"
-          required
-        />
+        <div className="form-control">
+          <input
+            type="text"
+            name="username"
+            placeholder="Username"
+            value={form.username}
+            onChange={handleChange}
+            className="input input-bordered w-full"
+            required
+          />
+        </div>
 
-        <input
-          type="email"
-          name="email"
-          placeholder="Email"
-          value={form.email}
-          onChange={handleChange}
-          className="input input-bordered w-full"
-          required
-        />
+        <div className="form-control">
+          <input
+            type="email"
+            name="email"
+            placeholder="Email"
+            value={form.email}
+            onChange={handleChange}
+            className="input input-bordered w-full"
+            required
+          />
+        </div>
 
-        <input
-          type="password"
-          name="password"
-          placeholder="Password"
-          value={form.password}
-          onChange={handleChange}
-          className="input input-bordered w-full"
-          required
-        />
+        <div className="form-control">
+          <input
+            type="password"
+            name="password"
+            placeholder="Password"
+            value={form.password}
+            onChange={handleChange}
+            className="input input-bordered w-full"
+            required
+          />
+        </div>
 
-        <select
-          name="role"
-          value={form.role}
-          onChange={handleChange}
-          className="select select-bordered w-full"
+        <div className="form-control">
+          <select
+            name="role"
+            value={form.role}
+            onChange={handleChange}
+            className="select select-bordered w-full"
+          >
+            <option value="seeker">Seeker</option>
+            <option value="provider">Provider</option>
+            <option value="admin">Admin</option>
+          </select>
+        </div>
+
+        <button
+          type="submit"
+          className={`btn btn-primary w-full ${loading ? "btn-disabled" : ""}`}
+          disabled={loading}
         >
-          <option value="seeker">Seeker</option>
-          <option value="provider">Provider</option>
-          <option value="admin">Admin</option>
-        </select>
-
-        <button type="submit" className="btn btn-success w-full">
-          Sign Up
+          {loading ? "Signing Up..." : "Sign Up"}
         </button>
 
         <p className="text-sm text-center">
           Already have an account?{" "}
           <span
-            className="text-green-600 cursor-pointer"
+            className="text-primary cursor-pointer hover:underline"
             onClick={() => navigate("/login")}
           >
             Login

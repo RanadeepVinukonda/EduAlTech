@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import api from "../axios"; // Adjust the path as necessary
+import api from "../axios";
 import { useAuth } from "../context/AuthProvider";
 import { toast } from "react-hot-toast";
 import CourseCard from "../components/CourseCard";
@@ -15,7 +15,6 @@ const MyLectures = () => {
     video: null,
   });
 
-  // ✅ Fetch lectures on mount
   useEffect(() => {
     const fetchLectures = async () => {
       try {
@@ -32,7 +31,6 @@ const MyLectures = () => {
     if (user?.role === "provider") fetchLectures();
   }, [user]);
 
-  // ✅ Handle input changes
   const handleChange = (e) => {
     const { name, value, files } = e.target;
     setForm((prev) => ({
@@ -41,7 +39,6 @@ const MyLectures = () => {
     }));
   };
 
-  // ✅ Upload new lecture
   const handleUpload = async (e) => {
     e.preventDefault();
     if (!form.title || !form.thumbnail || !form.video) {
@@ -59,9 +56,7 @@ const MyLectures = () => {
     try {
       const res = await api.post("/courses/upload", formData, {
         withCredentials: true,
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
+        headers: { "Content-Type": "multipart/form-data" },
       });
 
       toast.success("Lecture uploaded successfully!");
@@ -82,7 +77,7 @@ const MyLectures = () => {
 
   if (user?.role !== "provider") {
     return (
-      <div className="text-center mt-10 text-red-600">
+      <div className="text-center mt-10 text-red-600 font-semibold text-xl">
         You are not authorized to view this page.
       </div>
     );
@@ -90,13 +85,13 @@ const MyLectures = () => {
 
   return (
     <div className="max-w-6xl mx-auto py-10 px-4">
-      <h2 className="text-3xl font-bold text-green-700 mb-6">
+      <h2 className="text-3xl font-bold text-green-700 mb-6 text-center sm:text-left">
         Upload New Lecture
       </h2>
 
       <form
         onSubmit={handleUpload}
-        className="grid grid-cols-1 sm:grid-cols-2 gap-4 bg-white p-6 rounded shadow mb-10"
+        className="grid grid-cols-1 sm:grid-cols-2 gap-4 bg-white p-6 rounded-xl shadow mb-10"
       >
         <input
           type="text"
@@ -146,14 +141,14 @@ const MyLectures = () => {
         </button>
       </form>
 
-      <h3 className="text-2xl font-semibold mb-4 text-green-700">
+      <h3 className="text-2xl font-semibold mb-4 text-green-700 text-center sm:text-left">
         My Lectures
       </h3>
 
       {lectures.length === 0 ? (
-        <p className="text-gray-500">No lectures uploaded yet.</p>
+        <p className="text-gray-500 text-center">No lectures uploaded yet.</p>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
           {lectures.map((lecture) => (
             <CourseCard key={lecture._id} lecture={lecture} />
           ))}

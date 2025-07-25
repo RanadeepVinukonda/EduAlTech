@@ -25,32 +25,37 @@ export default function Login() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-green-50 px-4">
+    <div className="min-h-screen flex items-center justify-center bg-green-50 px-4 py-10">
       <form
         onSubmit={handleSubmit}
-        className="bg-white shadow-lg p-8 rounded-lg max-w-md w-full space-y-4"
+        className="w-full max-w-sm sm:max-w-md md:max-w-lg lg:max-w-md bg-white shadow-md rounded-2xl p-6 md:p-8 space-y-6"
       >
-        <h2 className="text-2xl font-bold text-green-600 text-center">Login</h2>
+        <h2 className="text-2xl md:text-3xl font-bold text-green-600 text-center">
+          Login
+        </h2>
 
-        <input
-          type="text"
-          name="username"
-          placeholder="Username"
-          className="input input-bordered w-full"
-          value={form.username}
-          onChange={handleChange}
-          required
-        />
-        <input
-          type="password"
-          name="password"
-          placeholder="Password"
-          className="input input-bordered w-full"
-          value={form.password}
-          onChange={handleChange}
-          required
-        />
-        <div className="flex justify-between items-center text-sm">
+        <div className="space-y-4">
+          <input
+            type="text"
+            name="username"
+            placeholder="Username"
+            className="input input-bordered w-full"
+            value={form.username}
+            onChange={handleChange}
+            required
+          />
+          <input
+            type="password"
+            name="password"
+            placeholder="Password"
+            className="input input-bordered w-full"
+            value={form.password}
+            onChange={handleChange}
+            required
+          />
+        </div>
+
+        <div className="flex justify-between text-sm mt-1">
           <span
             className="text-green-600 cursor-pointer hover:underline"
             onClick={() => navigate("/forgot-password")}
@@ -59,11 +64,11 @@ export default function Login() {
           </span>
         </div>
 
-        <button type="submit" className="btn btn-success w-full">
+        <button type="submit" className="btn btn-success w-full mt-2">
           Login
         </button>
 
-        <p className="text-sm text-center">
+        <p className="text-sm text-center mt-2">
           Don’t have an account?{" "}
           <span
             className="text-green-600 cursor-pointer hover:underline"

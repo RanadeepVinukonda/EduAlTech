@@ -1,5 +1,5 @@
 // src/pages/UpdateProfile.jsx
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router";
 import { useAuth } from "../context/AuthProvider";
 import { toast } from "react-hot-toast";
@@ -10,23 +10,60 @@ const UpdateProfile = () => {
   const navigate = useNavigate();
 
   const [form, setForm] = useState({
-    username: user?.username || "",
-    fullName: user?.fullName || "",
-    bio: user?.bio || "",
-    link: user?.link || "",
-    phone: user?.phone || "",
-    address: user?.address || "",
+    username: "",
+    fullName: "",
+    bio: "",
+    link: "",
+    phone: "",
+    address: "",
     profileImg: null,
     coverImg: null,
   });
 
+  const [preview, setPreview] = useState({
+    profileImg: "",
+    coverImg: "",
+  });
+
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    if (user) {
+      setForm({
+        username: user.username || "",
+        fullName: user.fullName || "",
+        bio: user.bio || "",
+        link: user.link || "",
+        phone: user.phone || "",
+        address: user.address || "",
+        profileImg: null,
+        coverImg: null,
+      });
+
+      setPreview({
+        profileImg: user.profileImg || "",
+        coverImg: user.coverImg || "",
+      });
+    }
+  }, [user]);
+
   const handleChange = (e) => {
     const { name, value, files } = e.target;
-    setForm({ ...form, [name]: files ? files[0] : value });
+    if (files) {
+      const file = files[0];
+      setForm((prev) => ({ ...prev, [name]: file }));
+      setPreview((prev) => ({
+        ...prev,
+        [name]: URL.createObjectURL(file),
+      }));
+    } else {
+      setForm((prev) => ({ ...prev, [name]: value }));
+    }
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setLoading(true);
 
     const formData = new FormData();
     for (let key in form) {
@@ -46,6 +83,8 @@ const UpdateProfile = () => {
       navigate("/profile");
     } catch (err) {
       toast.error(err.response?.data?.error || "Update failed");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -109,26 +148,48 @@ const UpdateProfile = () => {
           className="input input-bordered w-full"
         />
 
-        <label className="block font-semibold">Profile Image</label>
-        <input
-          type="file"
-          name="profileImg"
-          accept="image/*"
-          onChange={handleChange}
-          className="file-input file-input-bordered w-full"
-        />
+        <div>
+          <label className="block font-semibold mb-1">Profile Image</label>
+          <input
+            type="file"
+            name="profileImg"
+            accept="image/*"
+            onChange={handleChange}
+            className="file-input file-input-bordered w-full"
+          />
+          {preview.profileImg && (
+            <img
+              src={preview.profileImg}
+              alt="Profile Preview"
+              className="mt-2 w-32 h-32 object-cover rounded-full border"
+            />
+          )}
+        </div>
 
-        <label className="block font-semibold">Cover Image</label>
-        <input
-          type="file"
-          name="coverImg"
-          accept="image/*"
-          onChange={handleChange}
-          className="file-input file-input-bordered w-full"
-        />
+        <div>
+          <label className="block font-semibold mb-1">Cover Image</label>
+          <input
+            type="file"
+            name="coverImg"
+            accept="image/*"
+            onChange={handleChange}
+            className="file-input file-input-bordered w-full"
+          />
+          {preview.coverImg && (
+            <img
+              src={preview.coverImg}
+              alt="Cover Preview"
+              className="mt-2 w-full h-32 object-cover rounded-md border"
+            />
+          )}
+        </div>
 
-        <button type="submit" className="btn btn-success w-full">
-          Update Profile
+        <button
+          type="submit"
+          className="btn btn-success w-full"
+          disabled={loading}
+        >
+          {loading ? "Updating..." : "Update Profile"}
         </button>
       </form>
     </div>

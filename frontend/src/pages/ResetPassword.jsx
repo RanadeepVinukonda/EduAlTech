@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import api from "../axios"; // ✅ using shared axios instance
+import api from "../axios";
 import toast from "react-hot-toast";
 import { useParams, useNavigate } from "react-router";
 
@@ -11,7 +11,7 @@ const ResetPassword = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      await api.post(`/user/reset-password/${token}`, { password }); // ✅ token in URL
+      await api.post(`/user/reset-password/${token}`, { password });
       toast.success("Password reset! Login with new password.");
       navigate("/login");
     } catch (err) {
@@ -20,22 +20,32 @@ const ResetPassword = () => {
   };
 
   return (
-    <div className="flex justify-center items-center min-h-screen">
-      <div className="card w-96 bg-base-100 shadow-md p-6">
-        <h2 className="text-2xl font-semibold mb-4 text-center">
-          Reset Password
-        </h2>
-        <form onSubmit={handleSubmit}>
-          <input
-            type="password"
-            placeholder="New Password"
-            className="input input-bordered w-full mb-4"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            required
-          />
-          <button className="btn btn-primary w-full">Reset Password</button>
-        </form>
+    <div className="flex justify-center items-center min-h-screen bg-base-200 px-4">
+      <div className="card w-full max-w-md bg-base-100 shadow-lg">
+        <div className="card-body">
+          <h2 className="text-2xl font-bold text-center mb-4">
+            Reset Password
+          </h2>
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <label className="form-control w-full">
+              <div className="label">
+                <span className="label-text">New Password</span>
+              </div>
+              <input
+                type="password"
+                placeholder="Enter your new password"
+                className="input input-bordered w-full"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+              />
+            </label>
+
+            <button type="submit" className="btn btn-success w-full">
+              Reset Password
+            </button>
+          </form>
+        </div>
       </div>
     </div>
   );

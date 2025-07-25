@@ -2,13 +2,11 @@ import React from "react";
 import { Link, useNavigate } from "react-router";
 import { useAuth } from "../context/AuthProvider";
 import { toast } from "react-hot-toast";
-import logo from "../assets/logo.jpg"; // Adjust the path as necessary
 
 const Navbar = () => {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
 
-  // Dynamic navigation label & route based on role
   const getRoleBasedLink = () => {
     if (user?.role === "admin")
       return { to: "/admin", label: "Admin Dashboard" };
@@ -20,17 +18,26 @@ const Navbar = () => {
   const dynamicLink = getRoleBasedLink();
 
   const handleLogout = async () => {
-
     await logout();
     navigate("/");
   };
 
   return (
     <div className="navbar bg-base-100 shadow-md px-4 md:px-10">
-      {/* Left Logo */}
+      {/* Left Logo - MP4 Video */}
       <div className="flex-1">
-        <Link to="/" className="text-2xl font-extrabold text-green-700">
-          <img src={logo} alt="Courses" className="w-19 h-12" />
+        <Link to="/" className="flex items-center gap-2">
+          <video
+            src="/logo.mp4"
+            className="w-12 h-12 object-contain rounded-full"
+            autoPlay
+            loop
+            muted
+            playsInline
+          />
+          <span className="text-2xl font-extrabold text-green-700">
+            EduAltTech
+          </span>
         </Link>
       </div>
 
@@ -68,7 +75,8 @@ const Navbar = () => {
               <div className="w-10 rounded-full border-2 border-green-500">
                 <img
                   src={
-                    user.profileImg || `https://placehold.co/40x40?text=${user.username}`
+                    user.profileImg ||
+                    `https://placehold.co/40x40?text=${user.username}`
                   }
                   alt="Profile"
                 />
