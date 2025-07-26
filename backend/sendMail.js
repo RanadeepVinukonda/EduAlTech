@@ -1,40 +1,32 @@
+// utils/sendMail.js
 import nodemailer from "nodemailer";
-import dotenv from "dotenv";
+import dotenv from "dotenv"
 dotenv.config();
 
 const transporter = nodemailer.createTransport({
   host: process.env.SMTP_HOST,
-  port: process.env.SMTP_PORT,
-  secure: process.env.SMTP_SECURE === "true",
+  port: Number(process.env.SMTP_PORT),
+  secure: process.env.SMTP_SECURE === "true", // typically false for port 587
   auth: {
     user: process.env.SMTP_USER,
     pass: process.env.SMTP_PASS,
   },
 });
 
-const sendMail = async (to, subject, url) => {
-  try {
-    await transporter.sendMail({
-      from: `"EduAltTech" <${process.env.SMTP_EMAIL}>`,
-      to,
-      subject,
-      html: `
-        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: auto; padding: 20px; border: 1px solid #eee; border-radius: 10px;">
-          <h2 style="color: #10b981;">Password Reset Request</h2>
-          <p>Hello,</p>
-          <p>You requested to reset your password. Click the button below to proceed:</p>
-          <a href="${url}" style="display: inline-block; margin: 20px 0; padding: 12px 20px; background-color: #10b981; color: white; text-decoration: none; border-radius: 5px;">Reset Password</a>
-          <p>If you didn’t request this, just ignore this email.</p>
-          <p>– The EduAltTech Team</p>
-        </div>
-      `,
-    });
+export const sendMail = async (to, subject, resetLink) => {
+  const htmlContent = `
+    <h2>EduAltTech - Password Reset</h2>
+    <p>You requested a password reset. Click the link below to reset your password:</p>
+    <a href="${resetLink}" target="_blank" style="color: green;">Reset Password</a>
+    <p>If you did not request this, please ignore this email.</p>
+  `;
 
-    console.log(`✅ Email sent to: ${to}`);
-  } catch (err) {
-    console.error("📧 Email sending failed:", err);
-    throw err;
-  }
+  const mailOptions = {
+    from: `"EduAltTech Support" <${process.env.SMTP_USER}>`,
+    to,
+    subject,
+    html: htmlContent,
+  };
+
+  await transporter.sendMail(mailOptions);
 };
-
-export default sendMail;
