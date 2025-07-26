@@ -30,3 +30,4 @@ export const sendMail = async (to, subject, resetLink) => {
 
   await transporter.sendMail(mailOptions);
 };
+export default sendMail;
