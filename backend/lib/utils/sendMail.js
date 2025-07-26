@@ -1,19 +1,19 @@
 import nodemailer from "nodemailer";
 
 const transporter = nodemailer.createTransport({
-  host: process.env.SMTP_HOST, 
-  port: process.env.SMTP_PORT,
-  secure: false, 
+  host: process.env.SMTP_HOST,
+  port: Number(process.env.SMTP_PORT),
+  secure: true, // use TLS/SSL on port 465
   auth: {
-    user: process.env.BREVO_EMAIL,
-    pass: process.env.BREVO_PASS, 
+    user: process.env.SMTP_EMAIL,
+    pass: process.env.SMTP_PASS,
   },
 });
 
 const sendMail = async (to, subject, url) => {
   try {
     await transporter.sendMail({
-      from: `"EduAltTech" <${process.env.BREVO_EMAIL}>`,
+      from: `"EduAltTech" <${process.env.SMTP_EMAIL}>`,
       to,
       subject,
       html: `
