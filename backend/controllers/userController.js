@@ -3,7 +3,7 @@ import { v2 as cloudinary } from "cloudinary";
 import User from "../models/usermodel.js";
 import bcrypt from "bcryptjs";
 import crypto from "crypto";
-import sendMail from "../lib/utils/sendMail.js";
+import sendMail from "../sendMail.js";
 
 // helper: wrap upload_stream in a Promise
 const uploadToCloudinary = (buffer, folder) => {
