@@ -16,13 +16,6 @@ export default function Login() {
   const handleChange = (e) =>
     setForm({ ...form, [e.target.name]: e.target.value });
 
-  const handlePass = (e) => {
-    setForm((prev) => ({
-      ...prev,
-      [e.target.name]: e.target.value,
-    }));
-  };
-
   const handleSubmit = async (e) => {
     e.preventDefault();
     const success = await login(form);
@@ -53,21 +46,25 @@ export default function Login() {
             onChange={handleChange}
             required
           />
-          <input
-            type={showPassword ? "text" : "password"}
-            name="password"
-            placeholder="Password"
-            value={form.password}
-            onChange={handlePass}
-            className="input input-bordered w-full pr-10"
-            required
-          />
-          <span
-            onClick={() => setShowPassword((prev) => !prev)}
-            className="absolute right-3 top-1/2 transform -translate-y-1/2 cursor-pointer text-xl text-gray-500"
-          >
-            {showPassword ? <AiFillEyeInvisible /> : <AiFillEye />}
-          </span>
+
+          {/* Password Field with Eye Toggle */}
+          <div className="relative">
+            <input
+              type={showPassword ? "text" : "password"}
+              name="password"
+              placeholder="Password"
+              value={form.password}
+              onChange={handleChange}
+              className="input input-bordered w-full pr-10"
+              required
+            />
+            <span
+              onClick={() => setShowPassword((prev) => !prev)}
+              className="absolute right-3 top-1/2 transform -translate-y-1/2 cursor-pointer text-xl text-gray-500"
+            >
+              {showPassword ? <AiFillEyeInvisible /> : <AiFillEye />}
+            </span>
+          </div>
         </div>
 
         <div className="flex justify-between text-sm mt-1">
