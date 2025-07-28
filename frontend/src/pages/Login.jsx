@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router";
 import { useAuth } from "../context/AuthProvider";
 import { toast } from "react-hot-toast";
+import { AiFillEye, AiFillEyeInvisible } from "react-icons/ai";
 
 export default function Login() {
   const { login } = useAuth();
@@ -10,9 +11,17 @@ export default function Login() {
     username: "",
     password: "",
   });
+  const [showPassword, setShowPassword] = useState(false);
 
   const handleChange = (e) =>
     setForm({ ...form, [e.target.name]: e.target.value });
+
+  const handlePass = (e) => {
+    setForm((prev) => ({
+      ...prev,
+      [e.target.name]: e.target.value,
+    }));
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -45,14 +54,20 @@ export default function Login() {
             required
           />
           <input
-            type="password"
+            type={showPassword ? "text" : "password"}
             name="password"
             placeholder="Password"
-            className="input input-bordered w-full"
             value={form.password}
             onChange={handleChange}
+            className="input input-bordered w-full pr-10"
             required
           />
+          <span
+            onClick={() => setShowPassword((prev) => !prev)}
+            className="absolute right-3 top-1/2 transform -translate-y-1/2 cursor-pointer text-xl text-gray-500"
+          >
+            {showPassword ? <AiFillEyeInvisible /> : <AiFillEye />}
+          </span>
         </div>
 
         <div className="flex justify-between text-sm mt-1">

@@ -3,6 +3,7 @@ import { useNavigate } from "react-router";
 import { useAuth } from "../context/AuthProvider";
 import api from "../axios";
 import { toast } from "react-hot-toast";
+import { AiFillEye, AiFillEyeInvisible } from "react-icons/ai";
 
 export default function Signup() {
   const { login } = useAuth();
@@ -17,6 +18,7 @@ export default function Signup() {
   });
 
   const [loading, setLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
 
   const handleChange = (e) => {
     setForm((prev) => ({
@@ -95,16 +97,22 @@ export default function Signup() {
           />
         </div>
 
-        <div className="form-control">
+        <div className="form-control relative">
           <input
-            type="password"
+            type={showPassword ? "text" : "password"}
             name="password"
             placeholder="Password"
             value={form.password}
             onChange={handleChange}
-            className="input input-bordered w-full"
+            className="input input-bordered w-full pr-10"
             required
           />
+          <span
+            onClick={() => setShowPassword((prev) => !prev)}
+            className="absolute right-3 top-1/2 transform -translate-y-1/2 cursor-pointer text-xl text-gray-500"
+          >
+            {showPassword ? <AiFillEyeInvisible /> : <AiFillEye />}
+          </span>
         </div>
 
         <div className="form-control">
