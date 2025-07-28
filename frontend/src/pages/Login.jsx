@@ -58,7 +58,7 @@ export default function Login() {
             name="password"
             placeholder="Password"
             value={form.password}
-            onChange={handleChange}
+            onChange={handlePass}
             className="input input-bordered w-full pr-10"
             required
           />
