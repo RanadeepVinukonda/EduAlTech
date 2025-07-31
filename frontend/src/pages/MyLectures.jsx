@@ -172,23 +172,43 @@ const MyLectures = () => {
           className="textarea textarea-bordered sm:col-span-2"
         />
 
-        <input
-          type="file"
-          accept="image/*"
-          name="thumbnail"
-          onChange={handleChange}
-          className="file-input file-input-bordered w-full"
-          required
-        />
+        <div className="form-control">
+          <label className="label font-semibold text-sm text-gray-700">
+            Thumbnail Image
+          </label>
+          <input
+            type="file"
+            accept="image/*"
+            name="thumbnail"
+            onChange={handleChange}
+            className="file-input file-input-bordered w-full"
+            required
+          />
+          {form.thumbnail && (
+            <p className="text-xs mt-1 text-gray-500">
+              Selected: {form.thumbnail.name}
+            </p>
+          )}
+        </div>
 
-        <input
-          type="file"
-          accept="video/*"
-          name="video"
-          onChange={handleChange}
-          className="file-input file-input-bordered w-full"
-          required
-        />
+        <div className="form-control">
+          <label className="label font-semibold text-sm text-gray-700">
+            Lecture Video
+          </label>
+          <input
+            type="file"
+            accept="video/*"
+            name="video"
+            onChange={handleChange}
+            className="file-input file-input-bordered w-full"
+            required
+          />
+          {form.video && (
+            <p className="text-xs mt-1 text-gray-500">
+              Selected: {form.video.name}
+            </p>
+          )}
+        </div>
 
         <button
           type="submit"
