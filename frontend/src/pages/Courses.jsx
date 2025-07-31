@@ -17,6 +17,7 @@ export default function Courses() {
       .get(`/lectures/all?category=${view}`, { withCredentials: true })
       .then((res) => {
         setLectures(res.data);
+        console.log("Lectures data:", lectures);
         setError("");
       })
       .catch((err) => {
