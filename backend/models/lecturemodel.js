@@ -2,20 +2,25 @@ import mongoose from "mongoose";
 
 const lectureSchema = new mongoose.Schema(
   {
-    title: {
-      type: String,
-      required: true,
-    },
+    title: { type: String, required: true },
     description: String,
-    videoUrl: {
+    videoUrl: { type: String, required: true },
+    thumbnailUrl: String,
+
+    category: {
       type: String,
+      enum: ["Edu", "AltEdu"],
       required: true,
     },
-    thumbnailUrl: String,
+
+    // For Edu category
+    classLevel: String,
     subject: String,
+    course: String,
+
     uploadedBy: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "User", // or "Provider" if you have a separate model
+      ref: "User",
       required: true,
     },
   },

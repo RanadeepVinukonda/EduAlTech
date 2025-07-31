@@ -10,7 +10,10 @@ const MyLectures = () => {
   const [form, setForm] = useState({
     title: "",
     description: "",
+    category: "", // Edu or AltEdu
+    classLevel: "",
     subject: "",
+    course: "",
     thumbnail: null,
     video: null,
   });
@@ -41,8 +44,16 @@ const MyLectures = () => {
 
   const handleUpload = async (e) => {
     e.preventDefault();
-    if (!form.title || !form.thumbnail || !form.video) {
-      toast.error("Title, video, and thumbnail are required.");
+
+    if (
+      !form.title ||
+      !form.category ||
+      !form.thumbnail ||
+      !form.video ||
+      (form.category === "Edu" &&
+        (!form.classLevel || !form.subject || !form.course))
+    ) {
+      toast.error("Please fill all required fields");
       return;
     }
 
@@ -62,10 +73,14 @@ const MyLectures = () => {
       toast.success("Lecture uploaded successfully!");
       setLectures((prev) => [res.data.lecture, ...prev]);
 
+      // Reset form
       setForm({
         title: "",
         description: "",
+        category: "",
+        classLevel: "",
         subject: "",
+        course: "",
         thumbnail: null,
         video: null,
       });
@@ -102,14 +117,53 @@ const MyLectures = () => {
           className="input input-bordered w-full"
           required
         />
-        <input
-          type="text"
-          name="subject"
-          value={form.subject}
+
+        <select
+          name="category"
+          value={form.category}
           onChange={handleChange}
-          placeholder="Subject"
-          className="input input-bordered w-full"
-        />
+          className="select select-bordered w-full"
+          required
+        >
+          <option value="">Select Category</option>
+          <option value="Edu">Edu (Formal)</option>
+          <option value="AltEdu">AltEdu (Alternative)</option>
+        </select>
+
+        {form.category === "Edu" && (
+          <>
+            <input
+              type="text"
+              name="classLevel"
+              value={form.classLevel}
+              onChange={handleChange}
+              placeholder="Class Level (e.g., 10, 11)"
+              className="input input-bordered w-full"
+              required
+            />
+
+            <input
+              type="text"
+              name="subject"
+              value={form.subject}
+              onChange={handleChange}
+              placeholder="Subject (e.g., Math, Physics)"
+              className="input input-bordered w-full"
+              required
+            />
+
+            <input
+              type="text"
+              name="course"
+              value={form.course}
+              onChange={handleChange}
+              placeholder="Course (e.g., Algebra, Mechanics)"
+              className="input input-bordered w-full"
+              required
+            />
+          </>
+        )}
+
         <textarea
           name="description"
           value={form.description}
@@ -117,6 +171,7 @@ const MyLectures = () => {
           placeholder="Short Description"
           className="textarea textarea-bordered sm:col-span-2"
         />
+
         <input
           type="file"
           accept="image/*"
@@ -125,6 +180,7 @@ const MyLectures = () => {
           className="file-input file-input-bordered w-full"
           required
         />
+
         <input
           type="file"
           accept="video/*"
@@ -133,6 +189,7 @@ const MyLectures = () => {
           className="file-input file-input-bordered w-full"
           required
         />
+
         <button
           type="submit"
           className="btn btn-success col-span-1 sm:col-span-2"
