@@ -1,5 +1,5 @@
 import { v2 as cloudinary } from "cloudinary";
-import Lecture from "../models/Lecture.js";
+import Lecture from "../models/lecturemodel.js";
 
 export const addLecture = async (req, res) => {
   try {
