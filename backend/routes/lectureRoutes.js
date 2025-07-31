@@ -5,7 +5,7 @@ import {
   getMyLectures,
   getAllLectures,
   deleteLecture,
-} from "../controllers/lectureController.js";
+} from "./controllers/lecturecontroller.js";
 
 import { authMiddleware, authorizeRoles } from "../middleware/auth.js";
 
