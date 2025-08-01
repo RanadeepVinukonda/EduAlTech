@@ -40,7 +40,7 @@ router.get(
   getAllLectures
 );
 
-// Delete lecture by ID
+
 router.delete(
   "/:id",
   authMiddleware,

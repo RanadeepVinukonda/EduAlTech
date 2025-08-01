@@ -14,7 +14,7 @@ export default function Courses() {
 
     setLoading(true);
     api
-      .get(`/lectures/all?category=${view}`, { withCredentials: true })
+      .get(`/courses/all?category=${view}`, { withCredentials: true })//api additional1  
       .then((res) => {
         setLectures(res.data);
         console.log("Lectures data:", lectures);
