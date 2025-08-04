@@ -1,5 +1,5 @@
 import React from "react";
-import { Link } from "react-router";
+import { Link } from "react-router-dom"; // fixed import
 import { toast } from "react-hot-toast";
 import api from "../axios";
 import { useAuth } from "../context/AuthProvider";
@@ -12,7 +12,7 @@ const CourseCard = ({ lecture, fetchLectures }) => {
     try {
       await api.delete(`/admin/lecture/${id}`, { withCredentials: true });
       toast.success("Lecture deleted");
-      fetchLectures();
+      fetchLectures?.(); // optional chaining for reuse
     } catch (err) {
       toast.error("Failed to delete lecture");
     }
@@ -35,24 +35,52 @@ const CourseCard = ({ lecture, fetchLectures }) => {
           />
         )}
       </div>
+
       <h2 className="text-lg font-semibold text-green-700 mt-2 truncate">
         {lecture.title}
       </h2>
-      {lecture.subject && (
-        <p className="text-sm text-green-500">Subject: {lecture.subject}</p>
+
+      {/* Extra Edu Info */}
+      {lecture.classLevel && (
+        <p className="text-xs text-gray-500">
+          Class: <span className="font-medium">{lecture.classLevel}</span>
+        </p>
       )}
+      {lecture.subject && (
+        <p className="text-xs text-gray-500">
+          Subject: <span className="font-medium">{lecture.subject}</span>
+        </p>
+      )}
+      {lecture.course && (
+        <p className="text-xs text-gray-500">
+          Course: <span className="font-medium">{lecture.course}</span>
+        </p>
+      )}
+
+      {/* Description */}
       {lecture.description && (
         <p className="text-gray-600 text-sm mt-1 line-clamp-3">
           {lecture.description}
         </p>
       )}
-      <p className="text-xs text-gray-500 mt-2">
+
+      {/* Uploader */}
+      <p className="text-xs text-gray-400 mt-2">
         Uploaded by:{" "}
         <span className="text-green-600 font-medium">
           {lecture.uploadedBy?.fullName || "Unknown"}
         </span>
       </p>
 
+      {/* Materials */}
+      {lecture.materials?.length > 0 && (
+        <p className="text-xs text-blue-600 mt-1 font-medium">
+          {lecture.materials.length} Material
+          {lecture.materials.length > 1 ? "s" : ""} Available
+        </p>
+      )}
+
+      {/* Actions */}
       <div className="flex items-center justify-between mt-4">
         <Link to={`/course/${lecture._id}`}>
           <button className="btn btn-sm bg-green-600 text-white hover:bg-green-700 transition">
