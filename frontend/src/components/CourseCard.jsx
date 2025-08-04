@@ -1,5 +1,5 @@
 import React from "react";
-import { Link } from "react-router-dom"; // fixed import
+import { Link } from "react-router"; // fixed import
 import { toast } from "react-hot-toast";
 import api from "../axios";
 import { useAuth } from "../context/AuthProvider";
