@@ -48,12 +48,49 @@ export default function CoursePlayer() {
           src={lecture?.videoUrl}
           controls
           className="w-full rounded"
-          poster={lecture?.thumbnail || ""}
+          poster={lecture?.thumbnailUrl || ""}
         />
+
         <h3 className="text-2xl font-semibold mt-4 text-green-600">
           {lecture?.title || "Untitled Lecture"}
         </h3>
-        <p className="text-gray-600 mt-2">{lecture?.description}</p>
+
+        <p className="text-gray-600 mt-2 mb-4">{lecture?.description}</p>
+
+        {lecture?.materials && lecture.materials.length > 0 && (
+          <div className="mt-6">
+            <h4 className="text-xl font-semibold mb-2 text-green-700">
+              Supporting Materials
+            </h4>
+            <ul className="space-y-4">
+              {lecture.materials.map((mat, index) => (
+                <li key={index} className="bg-gray-100 p-4 rounded shadow">
+                  <p className="font-medium mb-2">{mat.title}</p>
+
+                  {/* Embed if PDF or PPT */}
+                  {mat.type === "pdf" ||
+                  mat.type === "ppt" ||
+                  mat.type === "pptx" ? (
+                    <iframe
+                      src={mat.fileUrl}
+                      title={mat.title}
+                      className="w-full h-96 rounded border"
+                    />
+                  ) : (
+                    <a
+                      href={mat.fileUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-blue-600 hover:underline"
+                    >
+                      Download {mat.type.toUpperCase()}
+                    </a>
+                  )}
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
       </div>
     </div>
   );

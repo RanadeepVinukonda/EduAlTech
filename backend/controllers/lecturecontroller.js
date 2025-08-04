@@ -1,6 +1,7 @@
 import { v2 as cloudinary } from "cloudinary";
 import Lecture from "../models/lecturemodel.js";
 
+// Upload Lecture with materials
 export const addLecture = async (req, res) => {
   try {
     const { title, description, category, classLevel, subject, course } =
@@ -8,6 +9,7 @@ export const addLecture = async (req, res) => {
 
     const thumbnailFile = req.files?.thumbnail?.[0];
     const videoFile = req.files?.video?.[0];
+    const materialFiles = req.files?.materials || [];
 
     if (!title || !videoFile || !thumbnailFile || !category) {
       return res.status(400).json({
@@ -39,6 +41,29 @@ export const addLecture = async (req, res) => {
       stream.end(videoFile.buffer);
     });
 
+    // Upload materials
+    const materialUploads = await Promise.all(
+      materialFiles.map((file) => {
+        return new Promise((resolve, reject) => {
+          const stream = cloudinary.uploader.upload_stream(
+            {
+              folder: "lectures/materials",
+              resource_type: "raw",
+            },
+            (err, result) => {
+              if (err) return reject(err);
+              resolve({
+                title: file.originalname,
+                fileUrl: result.secure_url,
+                type: file.mimetype.split("/")[1],
+              });
+            }
+          );
+          stream.end(file.buffer);
+        });
+      })
+    );
+
     const lecture = new Lecture({
       title,
       description,
@@ -49,6 +74,7 @@ export const addLecture = async (req, res) => {
       thumbnailUrl: thumbnailUpload,
       videoUrl: videoUpload,
       uploadedBy: req.user._id,
+      materials: materialUploads,
     });
 
     await lecture.save();
@@ -60,11 +86,13 @@ export const addLecture = async (req, res) => {
   }
 };
 
+// Get all lectures by provider
 export const getMyLectures = async (req, res) => {
   try {
-    const lectures = await Lecture.find({
-      uploadedBy: req.user._id,
-    }).populate("uploadedBy", "fullName");
+    const lectures = await Lecture.find({ uploadedBy: req.user._id }).populate(
+      "uploadedBy",
+      "fullName"
+    );
     res.status(200).json(lectures);
   } catch (error) {
     console.error("Error in getMyLectures:", error.message);
@@ -72,6 +100,7 @@ export const getMyLectures = async (req, res) => {
   }
 };
 
+// Get all lectures (filterable)
 export const getAllLectures = async (req, res) => {
   try {
     const filter = {};
@@ -91,6 +120,21 @@ export const getAllLectures = async (req, res) => {
   }
 };
 
+// Get one lecture by ID (used in CoursePlayer)
+export const getLectureById = async (req, res) => {
+  try {
+    const lecture = await Lecture.findById(req.params.id);
+    if (!lecture) {
+      return res.status(404).json({ error: "Lecture not found" });
+    }
+    res.status(200).json(lecture);
+  } catch (error) {
+    console.error("Error in getLectureById:", error.message);
+    res.status(500).json({ error: "Internal server error" });
+  }
+};
+
+// Delete lecture and cloudinary files
 export const deleteLecture = async (req, res) => {
   try {
     const lecture = await Lecture.findById(req.params.id);
@@ -98,7 +142,6 @@ export const deleteLecture = async (req, res) => {
       return res.status(404).json({ error: "Lecture not found" });
     }
 
-    // Only admin or the uploader can delete
     if (
       lecture.uploadedBy.toString() !== req.user._id.toString() &&
       req.user.role !== "admin"
@@ -106,13 +149,23 @@ export const deleteLecture = async (req, res) => {
       return res.status(403).json({ error: "Not authorized" });
     }
 
-    // Delete from Cloudinary (optional: add public_id tracking)
+    // Delete media from Cloudinary
     await cloudinary.uploader.destroy(lecture.thumbnailUrl, {
       resource_type: "image",
     });
+
     await cloudinary.uploader.destroy(lecture.videoUrl, {
       resource_type: "video",
     });
+
+    // Delete each material
+    if (lecture.materials && lecture.materials.length > 0) {
+      for (let material of lecture.materials) {
+        await cloudinary.uploader.destroy(material.fileUrl, {
+          resource_type: "raw",
+        });
+      }
+    }
 
     await lecture.remove();
 

@@ -20,6 +20,7 @@ router.post(
   upload.fields([
     { name: "thumbnail", maxCount: 1 },
     { name: "video", maxCount: 1 },
+    { name: "materials", maxCount: 5 }, // Allow multiple
   ]),
   addLecture
 );

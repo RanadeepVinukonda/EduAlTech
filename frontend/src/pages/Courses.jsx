@@ -1,3 +1,4 @@
+// src/pages/Courses.jsx
 import React, { useEffect, useState } from "react";
 import api from "../axios";
 import CourseCard from "../components/CourseCard";
@@ -7,17 +8,16 @@ export default function Courses() {
   const [lectures, setLectures] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-  const [view, setView] = useState(""); // "", "Edu", or "AltEdu"
+  const [view, setView] = useState("");
 
   useEffect(() => {
     if (view === "") return;
 
     setLoading(true);
     api
-      .get(`/courses/all?category=${view}`, { withCredentials: true })//api additional1  
+      .get(`/courses/all?category=${view}`, { withCredentials: true })
       .then((res) => {
         setLectures(res.data);
-        console.log("Lectures data:", lectures);
         setError("");
       })
       .catch((err) => {
@@ -33,14 +33,8 @@ export default function Courses() {
       const classLevel = lec.classLevel || "Unknown Class";
       const subject = lec.subject || "General";
 
-      if (!grouped[classLevel]) {
-        grouped[classLevel] = {};
-      }
-
-      if (!grouped[classLevel][subject]) {
-        grouped[classLevel][subject] = [];
-      }
-
+      if (!grouped[classLevel]) grouped[classLevel] = {};
+      if (!grouped[classLevel][subject]) grouped[classLevel][subject] = [];
       grouped[classLevel][subject].push(lec);
     });
     return grouped;
@@ -52,7 +46,6 @@ export default function Courses() {
         Explore Lectures
       </h2>
 
-      {/* Selection Blocks */}
       <div className="flex flex-col sm:flex-row justify-center gap-6 mb-10">
         <div
           className={`border-2 p-6 rounded-xl text-center cursor-pointer w-full sm:w-1/2 hover:bg-green-100 ${

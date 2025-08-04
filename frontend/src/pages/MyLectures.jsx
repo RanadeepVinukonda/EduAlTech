@@ -10,12 +10,13 @@ const MyLectures = () => {
   const [form, setForm] = useState({
     title: "",
     description: "",
-    category: "", // Edu or AltEdu
+    category: "",
     classLevel: "",
     subject: "",
     course: "",
     thumbnail: null,
     video: null,
+    materials: [], // ✅ Added for additional files
   });
 
   useEffect(() => {
@@ -36,9 +37,14 @@ const MyLectures = () => {
 
   const handleChange = (e) => {
     const { name, value, files } = e.target;
+
     setForm((prev) => ({
       ...prev,
-      [name]: files ? files[0] : value,
+      [name]: files
+        ? name === "materials"
+          ? Array.from(files)
+          : files[0]
+        : value,
     }));
   };
 
@@ -60,7 +66,13 @@ const MyLectures = () => {
     const formData = new FormData();
     for (let key in form) {
       if (form[key]) {
-        formData.append(key, form[key]);
+        if (key === "materials") {
+          form.materials.forEach((file) => {
+            formData.append("materials", file);
+          });
+        } else {
+          formData.append(key, form[key]);
+        }
       }
     }
 
@@ -83,6 +95,7 @@ const MyLectures = () => {
         course: "",
         thumbnail: null,
         video: null,
+        materials: [],
       });
     } catch (err) {
       console.error(err);
@@ -206,6 +219,26 @@ const MyLectures = () => {
           {form.video && (
             <p className="text-xs mt-1 text-gray-500">
               Selected: {form.video.name}
+            </p>
+          )}
+        </div>
+
+        <div className="form-control sm:col-span-2">
+          <label className="label font-semibold text-sm text-gray-700">
+            Supporting Materials (PDF, DOCX, ZIP) — Optional
+          </label>
+          <input
+            type="file"
+            name="materials"
+            accept=".pdf,.doc,.docx,.ppt,.pptx,.zip"
+            multiple
+            onChange={handleChange}
+            className="file-input file-input-bordered w-full"
+          />
+          {form.materials.length > 0 && (
+            <p className="text-xs mt-1 text-gray-500">
+              {form.materials.length} file
+              {form.materials.length > 1 ? "s" : ""} selected
             </p>
           )}
         </div>

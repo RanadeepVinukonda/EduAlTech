@@ -6,6 +6,13 @@ const lectureSchema = new mongoose.Schema(
     description: String,
     videoUrl: { type: String, required: true },
     thumbnailUrl: String,
+    materials: [
+      {
+        title: String,
+        fileUrl: String,
+        type: String, // "pdf", "doc", "zip"
+      },
+    ],
 
     category: {
       type: String,
