@@ -10,7 +10,13 @@ import {
 import { authMiddleware, authorizeRoles } from "../middleware/auth.js";
 
 const router = express.Router();
-const upload = multer({ storage: multer.memoryStorage() });
+const upload = multer({
+  storage: multer.memoryStorage(),
+  limits: {
+    fileSize: 100 * 1024 * 1024, // 100MB max
+  },
+});
+
 
 // Upload a lecture (Edu or AltEdu)
 router.post(
