@@ -12,7 +12,6 @@ export default function Courses() {
 
   useEffect(() => {
     if (view === "") return;
-
     setLoading(true);
     api
       .get(`/courses/all?category=${view}`, { withCredentials: true })

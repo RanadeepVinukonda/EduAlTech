@@ -16,7 +16,7 @@ const MyLectures = () => {
     course: "",
     thumbnail: null,
     video: null,
-    materials: [], // ✅ Added for additional files
+    materials: [], // array of files
   });
 
   useEffect(() => {
@@ -37,15 +37,14 @@ const MyLectures = () => {
 
   const handleChange = (e) => {
     const { name, value, files } = e.target;
-
-    setForm((prev) => ({
-      ...prev,
-      [name]: files
-        ? name === "materials"
-          ? Array.from(files)
-          : files[0]
-        : value,
-    }));
+    if (name === "materials") {
+      setForm((prev) => ({ ...prev, materials: files }));
+    } else {
+      setForm((prev) => ({
+        ...prev,
+        [name]: files ? files[0] : value,
+      }));
+    }
   };
 
   const handleUpload = async (e) => {
@@ -64,16 +63,16 @@ const MyLectures = () => {
     }
 
     const formData = new FormData();
-    for (let key in form) {
-      if (form[key]) {
-        if (key === "materials") {
-          form.materials.forEach((file) => {
-            formData.append("materials", file);
-          });
-        } else {
-          formData.append(key, form[key]);
-        }
-      }
+    formData.append("title", form.title);
+    formData.append("description", form.description);
+    formData.append("category", form.category);
+    if (form.classLevel) formData.append("classLevel", form.classLevel);
+    if (form.subject) formData.append("subject", form.subject);
+    if (form.course) formData.append("course", form.course);
+    formData.append("thumbnail", form.thumbnail);
+    formData.append("video", form.video);
+    for (let file of form.materials) {
+      formData.append("materials", file);
     }
 
     try {
@@ -225,21 +224,22 @@ const MyLectures = () => {
 
         <div className="form-control sm:col-span-2">
           <label className="label font-semibold text-sm text-gray-700">
-            Supporting Materials (PDF, DOCX, ZIP) — Optional
+            Additional Materials (PDF, DOCX, ZIP)
           </label>
           <input
             type="file"
             name="materials"
-            accept=".pdf,.doc,.docx,.ppt,.pptx,.zip"
+            accept=".pdf,.doc,.docx,.zip"
             multiple
             onChange={handleChange}
             className="file-input file-input-bordered w-full"
           />
           {form.materials.length > 0 && (
-            <p className="text-xs mt-1 text-gray-500">
-              {form.materials.length} file
-              {form.materials.length > 1 ? "s" : ""} selected
-            </p>
+            <ul className="text-xs mt-2 text-gray-500 list-disc list-inside">
+              {[...form.materials].map((file, index) => (
+                <li key={index}>{file.name}</li>
+              ))}
+            </ul>
           )}
         </div>
 
@@ -247,7 +247,7 @@ const MyLectures = () => {
           type="submit"
           className="btn btn-success col-span-1 sm:col-span-2"
         >
-          Upload
+          Upload Lecture
         </button>
       </form>
 
@@ -260,7 +260,11 @@ const MyLectures = () => {
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
           {lectures.map((lecture) => (
-            <CourseCard key={lecture._id} lecture={lecture} />
+            <CourseCard
+              key={lecture._id}
+              lecture={lecture}
+              fetchLectures={() => {}}
+            />
           ))}
         </div>
       )}
