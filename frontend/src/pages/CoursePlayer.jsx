@@ -41,57 +41,55 @@ export default function CoursePlayer() {
     );
   }
 
-  return (
-    <div className="min-h-screen py-12 px-4 bg-gray-50">
-      <div className="max-w-4xl mx-auto bg-white p-6 rounded shadow">
-        <video
-          src={lecture?.videoUrl}
-          controls
-          className="w-full rounded"
-          poster={lecture?.thumbnailUrl || ""}
-        />
+return (
+  <div className="min-h-screen py-12 px-4 bg-gray-50">
+    <div className="max-w-4xl mx-auto bg-white p-6 rounded shadow">
+      {/* VIDEO PLAYER */}
+      <video
+        src={lecture?.videoUrl}
+        controls
+        className="w-full rounded"
+        poster={lecture?.thumbnail || ""}
+      />
 
-        <h3 className="text-2xl font-semibold mt-4 text-green-600">
-          {lecture?.title || "Untitled Lecture"}
-        </h3>
+      <h3 className="text-2xl font-semibold mt-4 text-green-600">
+        {lecture?.title || "Untitled Lecture"}
+      </h3>
+      <p className="text-gray-600 mt-2">{lecture?.description}</p>
 
-        <p className="text-gray-600 mt-2 mb-4">{lecture?.description}</p>
+      {/* MATERIALS SECTION */}
+      {lecture?.materials?.length > 0 && (
+        <div className="mt-8">
+          <h4 className="text-xl font-bold text-green-700 mb-4">Materials</h4>
+          <div className="space-y-6">
+            {lecture.materials.map((material, idx) => (
+              <div key={idx} className="border p-4 rounded-lg bg-gray-100">
+                <h5 className="font-medium text-green-800 mb-2">
+                  {material.title}
+                </h5>
 
-        {lecture?.materials && lecture.materials.length > 0 && (
-          <div className="mt-6">
-            <h4 className="text-xl font-semibold mb-2 text-green-700">
-              Supporting Materials
-            </h4>
-            <ul className="space-y-4">
-              {lecture.materials.map((mat, index) => (
-                <li key={index} className="bg-gray-100 p-4 rounded shadow">
-                  <p className="font-medium mb-2">{mat.title}</p>
-
-                  {/* Embed if PDF or PPT */}
-                  {mat.type === "pdf" ||
-                  mat.type === "ppt" ||
-                  mat.type === "pptx" ? (
-                    <iframe
-                      src={mat.fileUrl}
-                      title={mat.title}
-                      className="w-full h-96 rounded border"
-                    />
-                  ) : (
-                    <a
-                      href={mat.fileUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="text-blue-600 hover:underline"
-                    >
-                      Download {mat.type.toUpperCase()}
-                    </a>
-                  )}
-                </li>
-              ))}
-            </ul>
+                {material.type === "pdf" ? (
+                  <iframe
+                    src={material.fileUrl}
+                    className="w-full h-96 rounded"
+                    title={material.title}
+                  />
+                ) : (
+                  <a
+                    href={material.fileUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-blue-600 underline"
+                  >
+                    View / Download
+                  </a>
+                )}
+              </div>
+            ))}
           </div>
-        )}
-      </div>
+        </div>
+      )}
     </div>
-  );
+  </div>
+);
 }
