@@ -16,35 +16,35 @@ const MyLectures = () => {
     course: "",
     thumbnail: null,
     video: null,
-    materials: [], // array of files
+    materials: null,
   });
 
-  useEffect(() => {
-    const fetchLectures = async () => {
-      try {
-        const res = await api.get("/courses/mylectures", {
-          withCredentials: true,
-        });
-        setLectures(res.data);
-      } catch (err) {
-        toast.error("Failed to fetch lectures");
-        console.error(err);
-      }
-    };
+  const fetchLectures = async () => {
+    try {
+      const res = await api.get("/courses/mylectures", {
+        withCredentials: true,
+      });
+      setLectures(res.data);
+    } catch (err) {
+      toast.error("Failed to fetch lectures");
+      console.error(err);
+    }
+  };
 
+  useEffect(() => {
     if (user?.role === "provider") fetchLectures();
   }, [user]);
 
   const handleChange = (e) => {
     const { name, value, files } = e.target;
-    if (name === "materials") {
-      setForm((prev) => ({ ...prev, materials: files }));
-    } else {
-      setForm((prev) => ({
-        ...prev,
-        [name]: files ? files[0] : value,
-      }));
-    }
+    setForm((prev) => ({
+      ...prev,
+      [name]: files
+        ? name === "materials"
+          ? files // array of files
+          : files[0] // single file
+        : value,
+    }));
   };
 
   const handleUpload = async (e) => {
@@ -63,16 +63,15 @@ const MyLectures = () => {
     }
 
     const formData = new FormData();
-    formData.append("title", form.title);
-    formData.append("description", form.description);
-    formData.append("category", form.category);
-    if (form.classLevel) formData.append("classLevel", form.classLevel);
-    if (form.subject) formData.append("subject", form.subject);
-    if (form.course) formData.append("course", form.course);
-    formData.append("thumbnail", form.thumbnail);
-    formData.append("video", form.video);
-    for (let file of form.materials) {
-      formData.append("materials", file);
+
+    for (let key in form) {
+      if (key === "materials" && form.materials) {
+        Array.from(form.materials).forEach((file) =>
+          formData.append("materials", file)
+        );
+      } else if (form[key]) {
+        formData.append(key, form[key]);
+      }
     }
 
     try {
@@ -84,7 +83,6 @@ const MyLectures = () => {
       toast.success("Lecture uploaded successfully!");
       setLectures((prev) => [res.data.lecture, ...prev]);
 
-      // Reset form
       setForm({
         title: "",
         description: "",
@@ -94,7 +92,7 @@ const MyLectures = () => {
         course: "",
         thumbnail: null,
         video: null,
-        materials: [],
+        materials: null,
       });
     } catch (err) {
       console.error(err);
@@ -153,23 +151,21 @@ const MyLectures = () => {
               className="input input-bordered w-full"
               required
             />
-
             <input
               type="text"
               name="subject"
               value={form.subject}
               onChange={handleChange}
-              placeholder="Subject (e.g., Math, Physics)"
+              placeholder="Subject (e.g., Math)"
               className="input input-bordered w-full"
               required
             />
-
             <input
               type="text"
               name="course"
               value={form.course}
               onChange={handleChange}
-              placeholder="Course (e.g., Algebra, Mechanics)"
+              placeholder="Course (e.g., Algebra)"
               className="input input-bordered w-full"
               required
             />
@@ -224,22 +220,20 @@ const MyLectures = () => {
 
         <div className="form-control sm:col-span-2">
           <label className="label font-semibold text-sm text-gray-700">
-            Additional Materials (PDF, DOCX, ZIP)
+            Additional Materials (PDF, DOCX, etc.)
           </label>
           <input
             type="file"
             name="materials"
-            accept=".pdf,.doc,.docx,.zip"
+            accept=".pdf,.doc,.docx"
             multiple
             onChange={handleChange}
             className="file-input file-input-bordered w-full"
           />
-          {form.materials.length > 0 && (
-            <ul className="text-xs mt-2 text-gray-500 list-disc list-inside">
-              {[...form.materials].map((file, index) => (
-                <li key={index}>{file.name}</li>
-              ))}
-            </ul>
+          {form.materials && (
+            <p className="text-xs mt-1 text-gray-500">
+              {form.materials.length} file(s) selected
+            </p>
           )}
         </div>
 
@@ -247,7 +241,7 @@ const MyLectures = () => {
           type="submit"
           className="btn btn-success col-span-1 sm:col-span-2"
         >
-          Upload Lecture
+          Upload
         </button>
       </form>
 
@@ -263,7 +257,7 @@ const MyLectures = () => {
             <CourseCard
               key={lecture._id}
               lecture={lecture}
-              fetchLectures={() => {}}
+              fetchLectures={fetchLectures}
             />
           ))}
         </div>
