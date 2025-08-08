@@ -47,7 +47,7 @@ router.get(
 
 
 router.delete(
-  "/:id",
+  "/delete/:id",
   authMiddleware,
   authorizeRoles("admin", "provider"),
   deleteLecture
