@@ -13,12 +13,11 @@ const router = express.Router();
 const upload = multer({
   storage: multer.memoryStorage(),
   limits: {
-    fileSize: 100 * 1024 * 1024, // 100MB max
+    fileSize: 100 * 1024 * 1024, 
   },
 });
 
 
-// Upload a lecture (Edu or AltEdu)
 router.post(
   "/upload",
   authMiddleware,
@@ -26,12 +25,12 @@ router.post(
   upload.fields([
     { name: "thumbnail", maxCount: 1 },
     { name: "video", maxCount: 1 },
-    { name: "materials", maxCount: 10 }, // Allow multiple
+    { name: "materials", maxCount: 10 },
   ]),
   addLecture
 );
 
-// Get all lectures uploaded by the logged-in provider
+
 router.get(
   "/mylectures",
   authMiddleware,
@@ -39,7 +38,6 @@ router.get(
   getMyLectures
 );
 
-// Get all lectures (seeker or admin access)
 router.get(
   "/all",
   authMiddleware,

@@ -70,4 +70,10 @@ export const authorizeRoles =
 
     next();
   };
+  export const isProviderOrAdmin = (req, res, next) => {
+    if (req.user?.role === "provider" || req.user?.role === "admin") {
+      return next();
+    }
+    return res.status(403).json({ message: "Access denied" });
+  };
 

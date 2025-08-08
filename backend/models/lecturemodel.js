@@ -21,7 +21,7 @@ const lectureSchema = new mongoose.Schema(
       ref: "User",
       required: true,
     },
-    materials: [materialSchema], // 🟢 ALLOW MATERIAL OBJECTS
+    materials: [materialSchema], 
   },
   { timestamps: true }
 );
