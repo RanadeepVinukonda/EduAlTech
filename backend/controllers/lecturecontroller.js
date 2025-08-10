@@ -175,41 +175,34 @@ export const getLectureById = async (req, res) => {
 // Delete lecture and cloudinary files
 export const deleteLecture = async (req, res) => {
   try {
-    const lecture = await Lecture.findById(req.params.id);
+    const { id } = req.params;
+
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      return res.status(400).json({ error: "Invalid lecture ID" });
+    }
+
+    const lecture = await Lecture.findById(id);
     if (!lecture) {
       return res.status(404).json({ error: "Lecture not found" });
     }
 
+    // Optional: provider-specific check (if not in middleware)
     if (
-      lecture.uploadedBy.toString() !== req.user._id.toString() &&
-      req.user.role !== "admin"
+      req.user.role === "provider" &&
+      lecture.uploadedBy?.toString() !== req.user._id.toString()
     ) {
-      return res.status(403).json({ error: "Not authorized" });
+      return res
+        .status(403)
+        .json({ error: "Not authorized to delete this lecture" });
     }
 
-    // Delete media from Cloudinary
-    await cloudinary.uploader.destroy(lecture.thumbnailUrl, {
-      resource_type: "image",
+    await Lecture.findByIdAndDelete(id);
+    res.json({ message: "Lecture deleted successfully" });
+  } catch (err) {
+    console.error("❌ Error in deleteLecture:", err);
+    res.status(500).json({
+      error: err.message || "Internal server error",
+      stack: err.stack, // include this temporarily for debugging
     });
-
-    await cloudinary.uploader.destroy(lecture.videoUrl, {
-      resource_type: "video",
-    });
-
-    // Delete each material
-    if (lecture.materials && lecture.materials.length > 0) {
-      for (let material of lecture.materials) {
-        await cloudinary.uploader.destroy(material.fileUrl, {
-          resource_type: "raw",
-        });
-      }
-    }
-
-    await lecture.remove();
-
-    res.status(200).json({ message: "Lecture deleted successfully" });
-  } catch (error) {
-    console.error("Error in deleteLecture:", error.message);
-    res.status(500).json({ error: "Internal server error" });
   }
 };
