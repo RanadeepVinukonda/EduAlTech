@@ -1,5 +1,5 @@
 import React from "react";
-import { Link } from "react-router"; // fixed import
+import { Link } from "react-router"; // fixed react-router-dom import
 import { toast } from "react-hot-toast";
 import api from "../axios";
 import { useAuth } from "../context/AuthProvider";
@@ -7,14 +7,23 @@ import { useAuth } from "../context/AuthProvider";
 const CourseCard = ({ lecture, fetchLectures }) => {
   const { user } = useAuth();
 
-  const deleteLecture = async (id) => {
-    if (!window.confirm("Delete this lecture?")) return;
+  const handleDelete = async (id) => {
+    if (!window.confirm("Are you sure you want to delete this lecture?"))
+      return;
+
     try {
       await api.delete(`/courses/delete/${id}`, { withCredentials: true });
-      toast.success("Lecture deleted");
-      fetchLectures?.(); // optional chaining for reuse
+      toast.success("Lecture deleted successfully");
+      if (fetchLectures) fetchLectures();
     } catch (err) {
-      toast.error("Failed to delete lecture");
+      console.error(
+        "❌ Error deleting lecture:",
+        err.response?.data || err.message
+      );
+      toast.error(
+        err.response?.data?.error ||
+          "Failed to delete lecture. Please try again."
+      );
     }
   };
 
@@ -40,7 +49,6 @@ const CourseCard = ({ lecture, fetchLectures }) => {
         {lecture.title}
       </h2>
 
-      {/* Extra Edu Info */}
       {lecture.classLevel && (
         <p className="text-xs text-gray-500">
           Class: <span className="font-medium">{lecture.classLevel}</span>
@@ -57,14 +65,12 @@ const CourseCard = ({ lecture, fetchLectures }) => {
         </p>
       )}
 
-      {/* Description */}
       {lecture.description && (
         <p className="text-gray-600 text-sm mt-1 line-clamp-3">
           {lecture.description}
         </p>
       )}
 
-      {/* Uploader */}
       <p className="text-xs text-gray-400 mt-2">
         Uploaded by:{" "}
         <span className="text-green-600 font-medium">
@@ -72,7 +78,6 @@ const CourseCard = ({ lecture, fetchLectures }) => {
         </span>
       </p>
 
-      {/* Materials */}
       {lecture.materials?.length > 0 && (
         <p className="text-xs text-blue-600 mt-1 font-medium">
           {lecture.materials.length} Material
@@ -80,7 +85,6 @@ const CourseCard = ({ lecture, fetchLectures }) => {
         </p>
       )}
 
-      {/* Actions */}
       <div className="flex items-center justify-between mt-4">
         <Link to={`/course/${lecture._id}`}>
           <button className="btn btn-sm bg-green-600 text-white hover:bg-green-700 transition">
@@ -88,9 +92,9 @@ const CourseCard = ({ lecture, fetchLectures }) => {
           </button>
         </Link>
 
-        {user?.role === "provider" && (
+        {(user?.role === "provider" || user?.role === "admin") && (
           <button
-            onClick={() => deleteLecture(lecture._id)}
+            onClick={() => handleDelete(lecture._id)}
             className="btn btn-sm btn-error hover:brightness-90"
           >
             Delete
