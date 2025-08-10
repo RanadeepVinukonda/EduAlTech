@@ -1,4 +1,5 @@
 import User from "../models/usermodel.js";
+import Lecture from "../models/lecturemodel.js";
 import jwt from "jsonwebtoken";
 
 export const authMiddleware = async (req, res, next) => {
@@ -49,7 +50,7 @@ export const protectRoute = async (req, res, next) => {
 
 export const authorizeRoles =
   (...roles) =>
-  (req, res, next) => {
+  async (req, res, next) => {
     if (!req.user) {
       return res.status(401).json({ error: "No user found in request" });
     }
@@ -68,12 +69,25 @@ export const authorizeRoles =
       });
     }
 
+    // ✅ Extra ownership check for providers
+    if (req.method === "DELETE" && userRole === "provider") {
+      const { id } = req.params;
+
+      if (!mongoose.Types.ObjectId.isValid(id)) {
+        return res.status(400).json({ error: "Invalid lecture ID" });
+      }
+
+      const lecture = await Lecture.findById(id);
+      if (!lecture) {
+        return res.status(404).json({ error: "Lecture not found" });
+      }
+
+      if (lecture.uploadedBy?.toString() !== req.user._id.toString()) {
+        return res
+          .status(403)
+          .json({ error: "You can only delete your own lectures" });
+      }
+    }
+
     next();
   };
-  export const isProviderOrAdmin = (req, res, next) => {
-    if (req.user?.role === "provider" || req.user?.role === "admin") {
-      return next();
-    }
-    return res.status(403).json({ message: "Access denied" });
-  };
-
