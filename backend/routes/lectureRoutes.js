@@ -5,6 +5,7 @@ import {
   getMyLectures,
   getAllLectures,
   deleteLecture,
+  getLectureById,
 } from "../controllers/lecturecontroller.js";
 
 import { authMiddleware, authorizeRoles } from "../middleware/auth.js";
@@ -36,6 +37,12 @@ router.get(
   authMiddleware,
   authorizeRoles("provider"),
   getMyLectures
+);
+
+router.get(
+  "/lecture/:id",
+  authMiddleware,
+  getLectureById
 );
 
 router.get(

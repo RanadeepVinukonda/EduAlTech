@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useParams } from "react-router";
-import axios from "axios";
+import api from "axios";
 
 export default function CoursePlayer() {
   const { id } = useParams();
@@ -12,7 +12,7 @@ export default function CoursePlayer() {
     const fetchLecture = async () => {
       try {
         setLoading(true);
-        const res = await axios.get(`/api/lectures/${id}`);
+        const res = await api.get(`/courses/lecture/${id}`);
         setLecture(res.data);
       } catch (err) {
         console.error("Error fetching lecture:", err);
