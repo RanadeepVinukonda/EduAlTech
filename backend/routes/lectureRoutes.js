@@ -55,7 +55,6 @@ router.get(
 
 router.delete(
   "/delete/:id",
-  authMiddleware,
   deleteLecture
 );
 
