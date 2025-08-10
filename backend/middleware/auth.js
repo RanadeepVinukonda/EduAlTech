@@ -1,17 +1,27 @@
 import User from "../models/usermodel.js";
 import Lecture from "../models/lecturemodel.js";
 import jwt from "jsonwebtoken";
+import mongoose from "mongoose"; // ✅ added
+
+// Helper to ensure CORS headers are always set
+const setCorsHeaders = (res) => {
+  res.header("Access-Control-Allow-Origin", "https://www.edualtech.xyz");
+  res.header("Access-Control-Allow-Credentials", "true");
+  res.header("Access-Control-Allow-Methods", "GET,POST,PUT,DELETE,OPTIONS");
+  res.header("Access-Control-Allow-Headers", "Content-Type, Authorization");
+};
 
 export const authMiddleware = async (req, res, next) => {
-  const token = req.cookies?.jwt;
+  setCorsHeaders(res);
 
+  const token = req.cookies?.jwt;
   if (!token) {
     return res.status(401).json({ message: "Unauthorized: No token provided" });
   }
 
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    const user = await User.findById(decoded.userId).select("-password"); // ✅ fixed here
+    const user = await User.findById(decoded.userId).select("-password");
 
     if (!user) {
       return res.status(404).json({ message: "User not found" });
@@ -25,9 +35,10 @@ export const authMiddleware = async (req, res, next) => {
 };
 
 export const protectRoute = async (req, res, next) => {
+  setCorsHeaders(res);
+
   try {
     const token = req.cookies?.jwt || req.headers.authorization?.split(" ")[1];
-
     if (!token) {
       return res.status(401).json({ error: "No token provided" });
     }
@@ -47,10 +58,11 @@ export const protectRoute = async (req, res, next) => {
   }
 };
 
-
 export const authorizeRoles =
   (...roles) =>
   async (req, res, next) => {
+    setCorsHeaders(res);
+
     if (!req.user) {
       return res.status(401).json({ error: "No user found in request" });
     }
