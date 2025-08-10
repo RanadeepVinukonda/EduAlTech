@@ -1,20 +1,13 @@
 import User from "../models/usermodel.js";
 import Lecture from "../models/lecturemodel.js";
+import Course from "../models/coursemodel.js"; // ✅ If you have a course model
 import jwt from "jsonwebtoken";
-import mongoose from "mongoose"; // ✅ added
+import mongoose from "mongoose";
 
-// Helper to ensure CORS headers are always set
-const setCorsHeaders = (res) => {
-  res.header("Access-Control-Allow-Origin", "https://www.edualtech.xyz");
-  res.header("Access-Control-Allow-Credentials", "true");
-  res.header("Access-Control-Allow-Methods", "GET,POST,PUT,DELETE,OPTIONS");
-  res.header("Access-Control-Allow-Headers", "Content-Type, Authorization");
-};
-
+// ---------------- AUTH MIDDLEWARE ----------------
 export const authMiddleware = async (req, res, next) => {
-  setCorsHeaders(res);
-
   const token = req.cookies?.jwt;
+
   if (!token) {
     return res.status(401).json({ message: "Unauthorized: No token provided" });
   }
@@ -35,10 +28,9 @@ export const authMiddleware = async (req, res, next) => {
 };
 
 export const protectRoute = async (req, res, next) => {
-  setCorsHeaders(res);
-
   try {
     const token = req.cookies?.jwt || req.headers.authorization?.split(" ")[1];
+
     if (!token) {
       return res.status(401).json({ error: "No token provided" });
     }
@@ -58,48 +50,67 @@ export const protectRoute = async (req, res, next) => {
   }
 };
 
+// ---------------- ROLE AUTHORIZATION ----------------
 export const authorizeRoles =
   (...roles) =>
   async (req, res, next) => {
-    setCorsHeaders(res);
-
-    if (!req.user) {
-      return res.status(401).json({ error: "No user found in request" });
-    }
-
-    const userRole = String(req.user.role).trim().toLowerCase();
-    const allowedRoles = roles.map((role) => String(role).trim().toLowerCase());
-
-    console.log("🟢 User role:", userRole);
-    console.log("🔒 Allowed roles:", allowedRoles);
-
-    if (!allowedRoles.includes(userRole)) {
-      return res.status(403).json({
-        error: `Access denied: your role '${userRole}' is not in [${allowedRoles.join(
-          ", "
-        )}]`,
-      });
-    }
-
-    // ✅ Extra ownership check for providers
-    if (req.method === "DELETE" && userRole === "provider") {
-      const { id } = req.params;
-
-      if (!mongoose.Types.ObjectId.isValid(id)) {
-        return res.status(400).json({ error: "Invalid lecture ID" });
+    try {
+      if (!req.user) {
+        return res.status(401).json({ error: "No user found in request" });
       }
 
-      const lecture = await Lecture.findById(id);
-      if (!lecture) {
-        return res.status(404).json({ error: "Lecture not found" });
+      const userRole = String(req.user.role).trim().toLowerCase();
+      const allowedRoles = roles.map((role) =>
+        String(role).trim().toLowerCase()
+      );
+
+      console.log("🟢 User role:", userRole);
+      console.log("🔒 Allowed roles:", allowedRoles);
+
+      if (!allowedRoles.includes(userRole)) {
+        return res.status(403).json({
+          error: `Access denied: your role '${userRole}' is not in [${allowedRoles.join(
+            ", "
+          )}]`,
+        });
       }
 
-      if (lecture.uploadedBy?.toString() !== req.user._id.toString()) {
-        return res
-          .status(403)
-          .json({ error: "You can only delete your own lectures" });
+      // ✅ Provider ownership check only on DELETE
+      if (req.method === "DELETE" && userRole === "provider") {
+        const { id } = req.params;
+
+        if (!mongoose.Types.ObjectId.isValid(id)) {
+          return res.status(400).json({ error: "Invalid resource ID" });
+        }
+
+        if (req.originalUrl.includes("/lectures/")) {
+          // Lecture delete
+          const lecture = await Lecture.findById(id);
+          if (!lecture) {
+            return res.status(404).json({ error: "Lecture not found" });
+          }
+          if (lecture.uploadedBy?.toString() !== req.user._id.toString()) {
+            return res
+              .status(403)
+              .json({ error: "You can only delete your own lectures" });
+          }
+        } else if (req.originalUrl.includes("/courses/")) {
+          // Course delete (optional ownership check)
+          const course = await Course.findById(id);
+          if (!course) {
+            return res.status(404).json({ error: "Course not found" });
+          }
+          if (course.createdBy?.toString() !== req.user._id.toString()) {
+            return res
+              .status(403)
+              .json({ error: "You can only delete your own courses" });
+          }
+        }
       }
+
+      next();
+    } catch (err) {
+      console.error("❌ authorizeRoles error:", err);
+      res.status(500).json({ error: "Internal server error in role check" });
     }
-
-    next();
   };
