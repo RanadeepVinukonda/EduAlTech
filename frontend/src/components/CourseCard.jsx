@@ -10,7 +10,7 @@ const CourseCard = ({ lecture, fetchLectures }) => {
   const deleteLecture = async (id) => {
     if (!window.confirm("Delete this lecture?")) return;
     try {
-      await api.delete(`/admin/lecture/${id}`, { withCredentials: true });
+      await api.delete(`/courses/delete/${id}`, { withCredentials: true });
       toast.success("Lecture deleted");
       fetchLectures?.(); // optional chaining for reuse
     } catch (err) {
