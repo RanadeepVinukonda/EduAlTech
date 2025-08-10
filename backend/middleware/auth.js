@@ -1,6 +1,5 @@
 import User from "../models/usermodel.js";
 import Lecture from "../models/lecturemodel.js";
-import Course from "../models/coursemodel.js"; // ✅ If you have a course model
 import jwt from "jsonwebtoken";
 import mongoose from "mongoose";
 
@@ -75,36 +74,23 @@ export const authorizeRoles =
         });
       }
 
-      // ✅ Provider ownership check only on DELETE
+      // ✅ Provider ownership check for all deletes (course or lecture)
       if (req.method === "DELETE" && userRole === "provider") {
         const { id } = req.params;
 
         if (!mongoose.Types.ObjectId.isValid(id)) {
-          return res.status(400).json({ error: "Invalid resource ID" });
+          return res.status(400).json({ error: "Invalid lecture ID" });
         }
 
-        if (req.originalUrl.includes("/lectures/")) {
-          // Lecture delete
-          const lecture = await Lecture.findById(id);
-          if (!lecture) {
-            return res.status(404).json({ error: "Lecture not found" });
-          }
-          if (lecture.uploadedBy?.toString() !== req.user._id.toString()) {
-            return res
-              .status(403)
-              .json({ error: "You can only delete your own lectures" });
-          }
-        } else if (req.originalUrl.includes("/courses/")) {
-          // Course delete (optional ownership check)
-          const course = await Course.findById(id);
-          if (!course) {
-            return res.status(404).json({ error: "Course not found" });
-          }
-          if (course.createdBy?.toString() !== req.user._id.toString()) {
-            return res
-              .status(403)
-              .json({ error: "You can only delete your own courses" });
-          }
+        const lecture = await Lecture.findById(id);
+        if (!lecture) {
+          return res.status(404).json({ error: "Lecture not found" });
+        }
+
+        if (lecture.uploadedBy?.toString() !== req.user._id.toString()) {
+          return res
+            .status(403)
+            .json({ error: "You can only delete your own lectures/courses" });
         }
       }
 
