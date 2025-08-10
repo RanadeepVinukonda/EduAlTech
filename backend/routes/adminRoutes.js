@@ -1,6 +1,6 @@
 // routes/adminRoutes.js
 import express from "express";
-import { protectRoute, isProviderOrAdmin } from "../middleware/auth.js";
+import { protectRoute, authorizeRoles } from "../middleware/auth.js";
 import {
   getAllUsers,
   deleteUser,
@@ -10,8 +10,8 @@ import {
 const router = express.Router();
 
 
-router.get("/users", isProviderOrAdmin,protectRoute,getAllUsers);
-router.delete("/user/:id", isProviderOrAdmin, protectRoute,deleteUser);
-router.delete("/lecture/:id", isProviderOrAdmin, protectRoute,deleteLecture);
+router.get("/users", authorizeRoles("provider", "admin"),protectRoute,getAllUsers);
+router.delete("/user/:id", authorizeRoles("provider", "admin"), protectRoute,deleteUser);
+router.delete("/lecture/:id", authorizeRoles("provider", "admin"), protectRoute,deleteLecture);
 
 export default router;
