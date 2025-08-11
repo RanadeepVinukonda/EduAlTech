@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useParams } from "react-router";
-import api from "axios";
+import api from "../axios";
 
 export default function CoursePlayer() {
   const { id } = useParams();
