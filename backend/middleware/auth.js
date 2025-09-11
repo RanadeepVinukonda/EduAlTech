@@ -1,24 +1,18 @@
-import mongoose from "mongoose";
 import jwt from "jsonwebtoken";
+import mongoose from "mongoose";
 import User from "../models/usermodel.js";
 import Lecture from "../models/lecturemodel.js";
 
-/**
- * Extract token from cookies or Authorization header
- */
+// ✅ Only use cookie first, fallback to Authorization if needed
 const getToken = (req) => {
+  if (req.cookies?.jwt) return req.cookies.jwt;
   if (req.headers.authorization?.startsWith("Bearer")) {
     return req.headers.authorization.split(" ")[1];
-  }
-  if (req.cookies?.jwt) {
-    return req.cookies.jwt;
   }
   return null;
 };
 
-/**
- * Protect route: only logged-in users
- */
+// ✅ Protect Route
 export const protectRoute = async (req, res, next) => {
   try {
     const token = getToken(req);
@@ -36,9 +30,7 @@ export const protectRoute = async (req, res, next) => {
   }
 };
 
-/**
- * Role-based access control
- */
+// ✅ Role-based access
 export const authorizeRoles =
   (...roles) =>
   async (req, res, next) => {
@@ -53,11 +45,12 @@ export const authorizeRoles =
       });
     }
 
-    // Only providers can delete their own lectures
+    // ✅ Only providers can delete their own lectures
     if (req.method === "DELETE" && userRole === "provider") {
       const { id } = req.params;
-      if (!mongoose.Types.ObjectId.isValid(id))
+      if (!mongoose.Types.ObjectId.isValid(id)) {
         return res.status(400).json({ error: "Invalid lecture ID" });
+      }
 
       const lecture = await Lecture.findById(id);
       if (!lecture) return res.status(404).json({ error: "Lecture not found" });
