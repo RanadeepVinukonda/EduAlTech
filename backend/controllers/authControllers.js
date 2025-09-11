@@ -1,37 +1,29 @@
-import { generateTokenAndSetCookie } from "../lib/utils/generateToken.js";
-import User from "../models/usermodel.js";
 import bcrypt from "bcryptjs";
-//signup Controller
+import User from "../models/usermodel.js";
+import { generateTokenAndSetCookie } from "../lib/utils/generateToken.js";
+
+// ✅ Signup
 export const signup = async (req, res) => {
   try {
-    const { fullName, username, email, password ,role} = req.body;
-    const existingUser = await User.findOne({ username });
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    const existingEmail = await User.findOne({ email });
-    if (existingUser) {
-      return res.status(400).json({ error: "Username is already taken" });
-    }
-    if (!fullName || !username || !email || !password||!role) {
-      return res.status(400).json({ error: "All fields are required" });
-    }
-    if (!emailRegex.test(email)) {
-      return res.status(400).json({ error: "Invalid email format" });
-    }
-    if (existingEmail) {
-      return res.status(400).json({ error: "Email is already taken" });
-    }
-    if (!["seeker", "provider", "admin"].includes(role)) {
-      return res.status(400).json({ message: "Invalid role" });
-    }
-    if (password.length < 6) {
-      return res
-        .status(400)
-        .json({ error: "Password must be at least 6 characters long" });
-    }
-    const salt = await bcrypt.genSalt(10);
-    const hashedPassword = await bcrypt.hash(password, salt);
+    const { fullName, username, email, password, role } = req.body;
 
-    const newUser = new User({
+    if (!fullName || !username || !email || !password || !role)
+      return res.status(400).json({ error: "All fields are required" });
+
+    if (!["seeker", "provider", "admin"].includes(role))
+      return res.status(400).json({ error: "Invalid role" });
+
+    const existingUser = await User.findOne({ username });
+    if (existingUser)
+      return res.status(400).json({ error: "Username already taken" });
+
+    const existingEmail = await User.findOne({ email });
+    if (existingEmail)
+      return res.status(400).json({ error: "Email already taken" });
+
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    const newUser = await User.create({
       fullName,
       username,
       email,
@@ -39,50 +31,39 @@ export const signup = async (req, res) => {
       role,
     });
 
-    if (newUser) {
-      generateTokenAndSetCookie(newUser._id, res);
-      await newUser.save();
+    generateTokenAndSetCookie(newUser._id, res);
 
-      res.status(201).json({
-        _id: newUser._id,
-        fullName: newUser.fullName,
-        username: newUser.username,
-        email: newUser.email,
-        role: newUser.role,
-      });
-    } else {
-      res.status(400).json({ error: "Invalid user data" });
-    }
-  } catch (error) {
-    console.log("Error in signup controller", error.message);
-    res.status(500).json({ error: "Internal Server Error" });
+    res.status(201).json({
+      _id: newUser._id,
+      fullName: newUser.fullName,
+      username: newUser.username,
+      email: newUser.email,
+      role: newUser.role,
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Server error" });
   }
 };
-//login Controller
+
+// ✅ Login
 export const login = async (req, res) => {
   try {
-    const { username, password } = req.body || {};
-    if (!username || !password) {
+    const { username, password } = req.body;
+    if (!username || !password)
       return res
         .status(400)
         .json({ error: "Username and password are required" });
-    }
 
     const user = await User.findOne({ username });
-    if (!user) {
-      return res.status(404).json({ error: "User not found" });
-    }
+    if (!user) return res.status(404).json({ error: "User not found" });
 
     const isMatch = await bcrypt.compare(password, user.password);
-    if (!isMatch) {
-      return res.status(401).json({ error: "Invalid password" });
-    }
+    if (!isMatch) return res.status(401).json({ error: "Invalid password" });
 
-    // Set cookie
     generateTokenAndSetCookie(user._id, res);
 
-    // ✅ Send full user object (excluding password)
-    const userData = {
+    res.status(200).json({
       _id: user._id,
       fullName: user.fullName,
       username: user.username,
@@ -94,31 +75,26 @@ export const login = async (req, res) => {
       address: user.address || "",
       link: user.link || "",
       bio: user.bio || "",
-    };
-
-    return res.status(200).json(userData);
-  } catch (error) {
-    console.error("❌ Login error:", error);
+    });
+  } catch (err) {
+    console.error(err);
     res.status(500).json({ error: "Server error" });
   }
 };
-//logout Controller
+
+// ✅ Logout
 export const logout = async (_, res) => {
-  try {
-    res.cookie("jwt", "", { maxAge: 0 });
-    res.status(200).json({ message: "Logged out successfully" });
-  } catch (error) {
-    console.log("Error in logout controller", error.message);
-    res.status(500).json({ error: "Internal Server Error" });
-  }
+  res.cookie("jwt", "", { maxAge: 0 });
+  res.status(200).json({ message: "Logged out successfully" });
 };
-// getMe Controller
+
+// ✅ Get logged-in user
 export const getMe = async (req, res) => {
   try {
     const user = await User.findById(req.user._id).select("-password");
     res.status(200).json(user);
-  } catch (error) {
-    console.log("Error in getMe controller", error.message);
-    res.status(500).json({ error: "Internal Server Error" });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Server error" });
   }
 };

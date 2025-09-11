@@ -6,6 +6,12 @@ import coursesPic from "../assets/coursespic.png";
 import educatorPic from "../assets/educatorpic.png";
 import welcomeImg from "../assets/welcome.jpg";
 
+// Value Proposition Logos
+import affordableIcon from "../assets/affordable.png";
+import mentorshipIcon from "../assets/mentorship.png";
+import practicalIcon from "../assets/practical.png";
+import communityIcon from "../assets/community.png";
+
 const Home = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
@@ -23,7 +29,9 @@ const Home = () => {
       case "seeker":
         return (
           <Link to="/courses">
-            <button className="btn btn-success btn-wide">Explore Courses</button>
+            <button className="btn btn-success btn-wide">
+              Explore Courses
+            </button>
           </Link>
         );
       case "provider":
@@ -35,7 +43,9 @@ const Home = () => {
       case "admin":
         return (
           <Link to="/admin">
-            <button className="btn btn-success btn-wide">Admin Dashboard</button>
+            <button className="btn btn-success btn-wide">
+              Admin Dashboard
+            </button>
           </Link>
         );
       default:
@@ -56,10 +66,9 @@ const Home = () => {
             <span>Succeed</span>
           </h1>
           <p className="text-gray-600 text-lg">
-            Get 24/7 live mentorship, flexible alternative education, and
-            seamless communication support — all in one powerful platform. We
-            are here to close learning gaps and empower every student to
-            succeed, their way.
+            The alternative education platform where learners gain real
+            mentorship, providers showcase their skills, and everyone grows
+            together.
           </p>
           {renderCTAButton()}
         </div>
@@ -98,6 +107,54 @@ const Home = () => {
           />
         </ul>
       </div>
+
+      {/* VALUE PROPOSITIONS */}
+      <div className="max-w-6xl mx-auto mt-20">
+        <h2 className="text-3xl font-bold text-green-600 text-center mb-10">
+          Why Choose Us?
+        </h2>
+        <ul className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-8">
+          <ValuePropCard
+            icon={affordableIcon}
+            title="Affordable & Accessible"
+            text="Quality education that’s affordable and reachable for everyone."
+          />
+          <ValuePropCard
+            icon={mentorshipIcon}
+            title="24/7 Mentorship"
+            text="Get instant help and continuous guidance from real mentors."
+          />
+          <ValuePropCard
+            icon={practicalIcon}
+            title="Practical Learning"
+            text="Hands-on courses that focus on skills you can apply immediately."
+          />
+          <ValuePropCard
+            icon={communityIcon}
+            title="Community & Networking"
+            text="Connect, collaborate, and grow with like-minded learners and educators."
+          />
+        </ul>
+      </div>
+
+      {/* FINAL CTA */}
+      <div className="text-center mt-16">
+        {!user ? (
+          <Link to="/signup">
+            <button className="btn btn-success btn-wide">
+              Start Your Journey Today
+            </button>
+          </Link>
+        ) : user.role === "provider" ? (
+          <Link to="/my-lectures">
+            <button className="btn btn-success btn-wide">
+              Share Your Knowledge Today
+            </button>
+          </Link>
+        ) : (
+          renderCTAButton()
+        )}
+      </div>
     </section>
   );
 };
@@ -117,5 +174,22 @@ const HighlightCard = ({ icon, title, subtitle, text }) => (
     </div>
   </li>
 );
+
+const ValuePropCard = ({ icon, title, text }) => (
+  <li className="flex gap-4 items-start bg-green-50 p-4 rounded shadow hover:shadow-md transition">
+    <img
+      src={icon}
+      alt={title}
+      className="w-20 h-20 object-contain" // ⬅️ increased from w-12 h-12
+      loading="lazy"
+    />
+    <div>
+      <h5 className="text-lg font-bold text-green-600">{title}</h5>
+      <p className="text-sm text-gray-600">{text}</p>
+    </div>
+  </li>
+);
+
+
 
 export default Home;

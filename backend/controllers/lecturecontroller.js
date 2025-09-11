@@ -162,7 +162,11 @@ export const getAllLectures = async (req, res) => {
 // Get one lecture by ID (used in CoursePlayer)
 export const getLectureById = async (req, res) => {
   try {
-    const lecture = await Lecture.findById(req.params.id);
+    const lecture = await Lecture.findByIdAndUpdate(
+      req.params.id,
+      { $inc: { views: 1 } }, // auto-increment views
+      { new: true }
+    );
     if (!lecture) {
       return res.status(404).json({ error: "Lecture not found" });
     }
@@ -172,6 +176,7 @@ export const getLectureById = async (req, res) => {
     res.status(500).json({ error: "Internal server error" });
   }
 };
+
 
 // Delete lecture and cloudinary files
 export const deleteLecture = async (req, res) => {
@@ -193,6 +198,30 @@ export const deleteLecture = async (req, res) => {
     res.status(200).json({ message: "Lecture deleted successfully" });
   } catch (error) {
     console.error("Error deleting lecture:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+};
+export const getFrequentlyViewed = async (req, res) => {
+  try {
+    const lectures = await Lecture.find()
+      .sort({ views: -1 })
+      .limit(5)
+      .populate("uploadedBy", "fullName");
+    res.status(200).json(lectures);
+  } catch (error) {
+    console.error("Error in getFrequentlyViewed:", error.message);
+    res.status(500).json({ error: "Internal server error" });
+  }
+};
+export const getPopularCourses = async (req, res) => {
+  try {
+    const lectures = await Lecture.find()
+      .sort({ enrollments: -1 })
+      .limit(5)
+      .populate("uploadedBy", "fullName");
+    res.status(200).json(lectures);
+  } catch (error) {
+    console.error("Error in getPopularCourses:", error.message);
     res.status(500).json({ error: "Internal server error" });
   }
 };

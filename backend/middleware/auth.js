@@ -1,86 +1,66 @@
 import mongoose from "mongoose";
+import jwt from "jsonwebtoken";
 import User from "../models/usermodel.js";
 import Lecture from "../models/lecturemodel.js";
-import jwt from "jsonwebtoken";
 
-export const authMiddleware = async (req, res, next) => {
-  const token = req.cookies?.jwt;
-
-  if (!token) {
-    return res.status(401).json({ message: "Unauthorized: No token provided" });
+/**
+ * Extract token from cookies or Authorization header
+ */
+const getToken = (req) => {
+  if (req.headers.authorization?.startsWith("Bearer")) {
+    return req.headers.authorization.split(" ")[1];
   }
-
-  try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    const user = await User.findById(decoded.userId).select("-password");
-
-    if (!user) {
-      return res.status(404).json({ message: "User not found" });
-    }
-
-    req.user = user;
-    next();
-  } catch (error) {
-    return res.status(401).json({ message: "Unauthorized: Invalid token" });
+  if (req.cookies?.jwt) {
+    return req.cookies.jwt;
   }
+  return null;
 };
 
+/**
+ * Protect route: only logged-in users
+ */
 export const protectRoute = async (req, res, next) => {
   try {
-    const token = req.cookies?.jwt || req.headers.authorization?.split(" ")[1];
-
-    if (!token) {
-      return res.status(401).json({ error: "No token provided" });
-    }
+    const token = getToken(req);
+    if (!token) return res.status(401).json({ error: "No token provided" });
 
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
     const user = await User.findById(decoded.userId).select("-password");
+    if (!user) return res.status(404).json({ error: "User not found" });
 
-    if (!user) {
-      return res.status(404).json({ error: "User not found" });
-    }
-
-    req.user = user;
+    req.user = user; // attach user to request
     next();
   } catch (err) {
-    console.error("Auth error:", err.message);
-    res.status(401).json({ error: "Invalid or expired token" });
+    console.error("❌ Auth error:", err.message);
+    return res.status(401).json({ error: "Invalid or expired token" });
   }
 };
 
+/**
+ * Role-based access control
+ */
 export const authorizeRoles =
   (...roles) =>
   async (req, res, next) => {
-    if (!req.user) {
-      return res.status(401).json({ error: "No user found in request" });
-    }
+    if (!req.user) return res.status(401).json({ error: "No user in request" });
 
     const userRole = String(req.user.role).trim().toLowerCase();
-    const allowedRoles = roles.map((role) => String(role).trim().toLowerCase());
-
-    console.log("🟢 User role:", userRole);
-    console.log("🔒 Allowed roles:", allowedRoles);
+    const allowedRoles = roles.map((r) => String(r).trim().toLowerCase());
 
     if (!allowedRoles.includes(userRole)) {
       return res.status(403).json({
-        error: `Access denied: your role '${userRole}' is not in [${allowedRoles.join(
-          ", "
-        )}]`,
+        error: `Access denied: your role '${userRole}' is not allowed`,
       });
     }
 
-    // Extra ownership check for providers
+    // Only providers can delete their own lectures
     if (req.method === "DELETE" && userRole === "provider") {
       const { id } = req.params;
-
-      if (!mongoose.Types.ObjectId.isValid(id)) {
+      if (!mongoose.Types.ObjectId.isValid(id))
         return res.status(400).json({ error: "Invalid lecture ID" });
-      }
 
       const lecture = await Lecture.findById(id);
-      if (!lecture) {
-        return res.status(404).json({ error: "Lecture not found" });
-      }
+      if (!lecture) return res.status(404).json({ error: "Lecture not found" });
 
       if (lecture.uploadedBy?.toString() !== req.user._id.toString()) {
         return res

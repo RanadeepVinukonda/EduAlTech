@@ -29,11 +29,29 @@ const teamMembers = [
   {
     name: "Uma Krishna Kanth Chokkapu",
     role: "Backend Engineer",
-    email: "uma@example.com",
-    phone: "+91 7890123456",
+    email: "ukkukk97@gmail.com",
+    phone: "+91 9121505879",
+    image: "/team/ravi.jpg",
+    linkedin:
+      "https://www.linkedin.com/in/chokkapu-uma-krishna-kanth-50a502288/",
+  },
+  {
+    name: "LavaRaju",
+    role: "Customer service Manager",
+    email: "lavaraju5751@gmail.com",
+    phone: "+91 8497981640",
+    image: "/team/ravi.jpg",
+    linkedin: "https://www.linkedin.com/in/lavaraju-undefined-724448323/",
+  },
+  {
+    name: "Gnana Sri",
+    role: "Chief Human Resource Officer",
+    email: "gnanasribathina@gmail.com",
+    phone: "",
     image: "/team/ravi.jpg",
     linkedin: "",
   },
+
 ];
 
 const Contact = () => {

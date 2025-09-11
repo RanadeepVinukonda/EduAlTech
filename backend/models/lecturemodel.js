@@ -21,7 +21,19 @@ const lectureSchema = new mongoose.Schema(
       ref: "User",
       required: true,
     },
-    materials: [materialSchema], 
+    materials: [materialSchema],
+
+    // ✅ New fields
+    views: {
+      type: Number,
+      default: 0, // start with 0
+    },
+    enrollments: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "User", // stores list of enrolled users
+      },
+    ],
   },
   { timestamps: true }
 );

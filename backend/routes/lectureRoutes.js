@@ -6,22 +6,22 @@ import {
   getAllLectures,
   deleteLecture,
   getLectureById,
+  getFrequentlyViewed,
+  getPopularCourses,
 } from "../controllers/lecturecontroller.js";
 
-import { authMiddleware, authorizeRoles } from "../middleware/auth.js";
+import { protectRoute, authorizeRoles } from "../middleware/auth.js";
 
 const router = express.Router();
 const upload = multer({
   storage: multer.memoryStorage(),
-  limits: {
-    fileSize: 100 * 1024 * 1024, 
-  },
+  limits: { fileSize: 100 * 1024 * 1024 },
 });
 
-
+// ✅ Upload lecture (provider/admin)
 router.post(
   "/upload",
-  authMiddleware,
+  protectRoute,
   authorizeRoles("provider", "admin"),
   upload.fields([
     { name: "thumbnail", maxCount: 1 },
@@ -31,33 +31,35 @@ router.post(
   addLecture
 );
 
-
+// ✅ Get provider's own lectures
 router.get(
   "/mylectures",
-  authMiddleware,
+  protectRoute,
   authorizeRoles("provider"),
   getMyLectures
 );
 
-router.get(
-  "/lecture/:id",
-  authMiddleware,
-  getLectureById
-);
+// ✅ Get lecture by id
+router.get("/lecture/:id", protectRoute, getLectureById);
 
+// ✅ Get all lectures (seeker/admin)
 router.get(
   "/all",
-  authMiddleware,
+  protectRoute,
   authorizeRoles("seeker", "admin"),
   getAllLectures
 );
 
-
+// ✅ Delete lecture (provider/admin)
 router.delete(
   "/delete/:id",
-  authMiddleware,
+  protectRoute,
   authorizeRoles("admin", "provider"),
   deleteLecture
 );
+
+// Public routes
+router.get("/frequently-viewed", getFrequentlyViewed);
+router.get("/popular", getPopularCourses);
 
 export default router;
