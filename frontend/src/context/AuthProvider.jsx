@@ -12,11 +12,13 @@ export const AuthProvider = ({ children }) => {
   const navigate = useNavigate();
   const location = useLocation();
 
-  // ✅ Fetch user on app load (to handle cookies)
+  // ✅ Fetch user on app load (checks cookie + role)
   useEffect(() => {
     const fetchUser = async () => {
       try {
         const res = await api.get("/auth/me", { withCredentials: true });
+
+        // ✅ make sure backend returns { id, name, email, role }
         setUser(res.data);
       } catch (err) {
         setUser(null);
@@ -33,6 +35,8 @@ export const AuthProvider = ({ children }) => {
       const res = await api.post("/auth/login", credentials, {
         withCredentials: true,
       });
+
+      // ✅ res.data must include role (provider/seeker)
       setUser(res.data);
 
       const redirectTo = location.state?.from?.pathname || "/profile";
