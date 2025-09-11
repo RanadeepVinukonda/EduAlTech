@@ -31,7 +31,8 @@ export const signup = async (req, res) => {
       role,
     });
 
-    generateTokenAndSetCookie(newUser._id, res);
+    // ✅ generate token with user object
+    generateTokenAndSetCookie(newUser, res);
 
     res.status(201).json({
       _id: newUser._id,
@@ -61,7 +62,8 @@ export const login = async (req, res) => {
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) return res.status(401).json({ error: "Invalid password" });
 
-    generateTokenAndSetCookie(user._id, res);
+    // ✅ generate token with user object
+    generateTokenAndSetCookie(user, res);
 
     res.status(200).json({
       _id: user._id,
@@ -84,15 +86,34 @@ export const login = async (req, res) => {
 
 // ✅ Logout
 export const logout = async (_, res) => {
-  res.cookie("jwt", "", { maxAge: 0 });
+  res.clearCookie("jwt", {
+    httpOnly: true,
+    sameSite: "lax",
+    secure: process.env.NODE_ENV === "production",
+  });
   res.status(200).json({ message: "Logged out successfully" });
 };
 
 // ✅ Get logged-in user
 export const getMe = async (req, res) => {
   try {
-    const user = await User.findById(req.user._id).select("-password");
-    res.status(200).json(user);
+    // ✅ middleware sets req.user = { userId, role }
+    const user = await User.findById(req.user.userId).select("-password");
+    if (!user) return res.status(404).json({ error: "User not found" });
+
+    res.status(200).json({
+      _id: user._id,
+      fullName: user.fullName,
+      username: user.username,
+      email: user.email,
+      role: user.role,
+      profileImg: user.profileImg || "",
+      coverImg: user.coverImg || "",
+      phone: user.phone || "",
+      address: user.address || "",
+      link: user.link || "",
+      bio: user.bio || "",
+    });
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: "Server error" });
