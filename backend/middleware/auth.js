@@ -1,9 +1,10 @@
+// middleware/auth.js
 import jwt from "jsonwebtoken";
 import mongoose from "mongoose";
 import User from "../models/usermodel.js";
 import Lecture from "../models/lecturemodel.js";
 
-// ✅ Only use cookie first, fallback to Authorization if needed
+// ✅ Get token from cookie or Authorization header
 const getToken = (req) => {
   if (req.cookies?.jwt) return req.cookies.jwt;
   if (req.headers.authorization?.startsWith("Bearer")) {
@@ -12,7 +13,7 @@ const getToken = (req) => {
   return null;
 };
 
-// ✅ Protect Route
+// ✅ Protect route
 export const protectRoute = async (req, res, next) => {
   try {
     const token = getToken(req);
@@ -22,11 +23,11 @@ export const protectRoute = async (req, res, next) => {
     const user = await User.findById(decoded.userId).select("-password");
     if (!user) return res.status(404).json({ error: "User not found" });
 
-    req.user = user; // attach user to request
+    req.user = user;
     next();
   } catch (err) {
     console.error("❌ Auth error:", err.message);
-    return res.status(401).json({ error: "Invalid or expired token" });
+    res.status(401).json({ error: "Invalid or expired token" });
   }
 };
 
@@ -40,12 +41,14 @@ export const authorizeRoles =
     const allowedRoles = roles.map((r) => String(r).trim().toLowerCase());
 
     if (!allowedRoles.includes(userRole)) {
-      return res.status(403).json({
-        error: `Access denied: your role '${userRole}' is not allowed`,
-      });
+      return res
+        .status(403)
+        .json({
+          error: `Access denied: your role '${userRole}' is not allowed`,
+        });
     }
 
-    // ✅ Only providers can delete their own lectures
+    // Only providers can delete their own lectures
     if (req.method === "DELETE" && userRole === "provider") {
       const { id } = req.params;
       if (!mongoose.Types.ObjectId.isValid(id)) {

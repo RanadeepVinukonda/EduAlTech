@@ -1,3 +1,4 @@
+// context/authProvider.jsx
 import React, { createContext, useContext, useEffect, useState } from "react";
 import api from "../axios";
 import { useNavigate, useLocation } from "react-router";
@@ -6,19 +7,19 @@ import { toast } from "react-hot-toast";
 const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
-  const [user, setUser] = useState(null); // logged-in user
-  const [loading, setLoading] = useState(true); // app-wide loading state
+  const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(true);
 
   const navigate = useNavigate();
   const location = useLocation();
 
-  // ✅ Restore user on app load (using JWT cookie)
+  // ✅ Restore user on reload
   useEffect(() => {
     const fetchUser = async () => {
       try {
         const res = await api.get("/auth/me", { withCredentials: true });
         setUser(res.data);
-      } catch (err) {
+      } catch {
         setUser(null);
       } finally {
         setLoading(false);

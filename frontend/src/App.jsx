@@ -5,7 +5,7 @@ import { Toaster } from "react-hot-toast";
 // Layout Components
 import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
-import ProtectRoute from "./components/ProtectedRoute";
+import ProtectedRoute from "./components/ProtectedRoute";
 
 // Pages
 import Home from "./pages/Home";
@@ -46,41 +46,41 @@ const App = () => {
           <Route
             path="/profile"
             element={
-              <ProtectRoute>
+              <ProtectedRoute>
                 <Profile />
-              </ProtectRoute>
+              </ProtectedRoute>
             }
           />
           <Route
             path="/updateprofile"
             element={
-              <ProtectRoute>
+              <ProtectedRoute>
                 <UpdateProfile />
-              </ProtectRoute>
+              </ProtectedRoute>
             }
           />
           <Route
             path="/course/:id"
             element={
-              <ProtectRoute>
+              <ProtectedRoute>
                 <CoursePlayer />
-              </ProtectRoute>
+              </ProtectedRoute>
             }
           />
           <Route
             path="/admin"
             element={
-              <ProtectRoute allowedRoles={["admin"]}>
+              <ProtectedRoute allowedRoles={["admin"]}>
                 <AdminDashboard />
-              </ProtectRoute>
+              </ProtectedRoute>
             }
           />
           <Route
             path="/my-lectures"
             element={
-              <ProtectRoute role="provider">
+              <ProtectedRoute role="provider">
                 <MyLectures />
-              </ProtectRoute>
+              </ProtectedRoute>
             }
           />
           <Route path="/forgot-password" element={<ForgotPassword />} />
