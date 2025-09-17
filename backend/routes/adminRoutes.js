@@ -15,3 +15,4 @@ router.delete("/user/:id", authorizeRoles("provider", "admin"), protectRoute,del
 router.delete("/lecture/:id", authorizeRoles("provider", "admin"), protectRoute,deleteLecture);
 
 export default router;
+  
