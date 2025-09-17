@@ -1,3 +1,4 @@
+// server.js
 import express from "express";
 import dotenv from "dotenv";
 import cors from "cors";
@@ -25,7 +26,6 @@ cloudinary.config({
 
 const app = express();
 const PORT = process.env.PORT || 5000;
-const __dirname = path.resolve();
 
 // Middleware
 app.use(express.json({ limit: "100mb" }));
@@ -33,8 +33,8 @@ app.use(express.urlencoded({ extended: true, limit: "100mb" }));
 app.use(cookieParser());
 
 const allowedOrigins = [
-  "http://localhost:5000",
   "http://localhost:5173",
+  "http://localhost:5000",
   "https://edu-al-tech.vercel.app",
   "https://www.edualtech.xyz",
   "https://edualtech.xyz",
@@ -61,14 +61,31 @@ app.use("/api/admin", adminRoutes);
 
 // Serve frontend in production
 if (process.env.NODE_ENV === "production") {
-  app.use(express.static(path.join(__dirname, "../frontend/dist")));
+  const frontendPath = path.join(process.cwd(), "frontend", "dist");
+  app.use(express.static(frontendPath));
   app.get("*", (req, res) => {
-    res.sendFile(path.join(__dirname, "../frontend/dist/index.html"));
+    res.sendFile(path.join(frontendPath, "index.html"));
   });
 }
 
-// Start server
-app.listen(PORT, () => {
-  console.log(`🚀 Server running on port ${PORT}`);
-  connectMongoDB();
+// Fallback for unknown API routes
+app.use("/api", (req, res) => {
+  res.status(404).json({ error: "API route not found" });
 });
+
+// Global error handler
+app.use((err, req, res, next) => {
+  console.error(err.stack);
+  res.status(500).json({ error: err.message || "Internal Server Error" });
+});
+
+// Connect to MongoDB and start server
+connectMongoDB()
+  .then(() => {
+    app.listen(PORT, () => {
+      console.log(`🚀 Server running on port ${PORT}`);
+    });
+  })
+  .catch((err) => {
+    console.error("Failed to connect to MongoDB:", err);
+  });
