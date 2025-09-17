@@ -1,121 +1,135 @@
+// Courses.jsx
 import React, { useEffect, useState } from "react";
 import api from "../axios";
-import CourseCard from "../components/CourseCard";
 import { toast } from "react-hot-toast";
 
-const Courses = () => {
+export default function Courses() {
   const [courses, setCourses] = useState([]);
   const [popularCourses, setPopularCourses] = useState([]);
   const [frequentCourses, setFrequentCourses] = useState([]);
-  const [searchQuery, setSearchQuery] = useState("");
+  const [search, setSearch] = useState("");
   const [loading, setLoading] = useState(true);
 
-  // Fetch all courses
-  const fetchCourses = async () => {
-    try {
-      setLoading(true);
-      const res = await api.get("/courses");
-      setCourses(res.data);
-    } catch (err) {
-      console.error(err);
-      toast.error("Failed to load courses");
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  // Fetch popular courses
-  const fetchPopular = async () => {
-    try {
-      const res = await api.get("/courses/popular");
-      setPopularCourses(res.data);
-    } catch {
-      toast.error("Failed to load popular courses");
-    }
-  };
-
-  // Fetch frequently opened courses
-  const fetchFrequent = async () => {
-    try {
-      const res = await api.get("/courses/frequently-viewed");
-      setFrequentCourses(res.data);
-    } catch {
-      toast.error("Failed to load frequently opened courses");
-    }
-  };
-
+  // Fetch courses
   useEffect(() => {
+    const fetchCourses = async () => {
+      try {
+        setLoading(true);
+
+        const [allRes, popularRes, frequentRes] = await Promise.all([
+          api.get("/courses"),
+          api.get("/courses/popular"),
+          api.get("/courses/frequent"),
+        ]);
+
+        setCourses(allRes.data?.courses || []);
+        setPopularCourses(popularRes.data?.courses || []);
+        setFrequentCourses(frequentRes.data?.courses || []);
+      } catch (err) {
+        toast.error(err?.response?.data?.error || "Failed to fetch courses");
+      } finally {
+        setLoading(false);
+      }
+    };
+
     fetchCourses();
-    fetchPopular();
-    fetchFrequent();
   }, []);
 
-  const filteredCourses = courses.filter((course) =>
-    course.title.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  // Search filter
+  const filteredCourses = Array.isArray(courses)
+    ? courses.filter((c) =>
+        c.title?.toLowerCase().includes(search.toLowerCase())
+      )
+    : [];
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen text-lg">
+        Loading courses...
+      </div>
+    );
+  }
 
   return (
-    <div className="max-w-7xl mx-auto py-10 px-4">
-      <h2 className="text-3xl font-bold text-green-700 mb-6 text-center sm:text-left">
-        Courses
-      </h2>
+    <div className="min-h-screen bg-base-200 p-6">
+      <div className="max-w-6xl mx-auto space-y-10">
+        {/* Search Bar */}
+        <div className="flex justify-center">
+          <input
+            type="text"
+            placeholder="Search courses..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            className="input input-bordered w-full max-w-md"
+          />
+        </div>
 
-      {/* Search */}
-      <input
-        type="text"
-        placeholder="Search courses..."
-        className="input input-bordered w-full max-w-md mb-6"
-        value={searchQuery}
-        onChange={(e) => setSearchQuery(e.target.value)}
-      />
-
-      {/* Popular Courses */}
-      {popularCourses.length > 0 && (
-        <section className="mb-8">
-          <h3 className="text-xl font-semibold mb-4 text-green-600">
-            Popular Courses
-          </h3>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {popularCourses.map((course) => (
-              <CourseCard key={course._id} lecture={course} />
-            ))}
-          </div>
+        {/* Popular Courses */}
+        <section>
+          <h2 className="text-2xl font-bold mb-4">🔥 Popular Courses</h2>
+          {popularCourses.length > 0 ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {popularCourses.map((course) => (
+                <CourseCard key={course._id} course={course} />
+              ))}
+            </div>
+          ) : (
+            <p>No popular courses available.</p>
+          )}
         </section>
-      )}
 
-      {/* Frequently Opened Courses */}
-      {frequentCourses.length > 0 && (
-        <section className="mb-8">
-          <h3 className="text-xl font-semibold mb-4 text-green-600">
-            Frequently Opened
-          </h3>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {frequentCourses.map((course) => (
-              <CourseCard key={course._id} lecture={course} />
-            ))}
-          </div>
+        {/* Frequently Opened Courses */}
+        <section>
+          <h2 className="text-2xl font-bold mb-4">📈 Frequently Opened</h2>
+          {frequentCourses.length > 0 ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {frequentCourses.map((course) => (
+                <CourseCard key={course._id} course={course} />
+              ))}
+            </div>
+          ) : (
+            <p>No frequently opened courses available.</p>
+          )}
         </section>
-      )}
 
-      {/* All Courses */}
-      <section>
-        <h3 className="text-xl font-semibold mb-4 text-green-600">
-          All Courses
-        </h3>
-        {loading ? (
-          <p className="text-center text-gray-500">Loading courses...</p>
-        ) : filteredCourses.length === 0 ? (
-          <p className="text-center text-gray-500">No courses found.</p>
-        ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {filteredCourses.map((course) => (
-              <CourseCard key={course._id} lecture={course} />
-            ))}
-          </div>
-        )}
-      </section>
+        {/* All Courses with Search */}
+        <section>
+          <h2 className="text-2xl font-bold mb-4">📚 All Courses</h2>
+          {filteredCourses.length > 0 ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {filteredCourses.map((course) => (
+                <CourseCard key={course._id} course={course} />
+              ))}
+            </div>
+          ) : (
+            <p>No courses found matching your search.</p>
+          )}
+        </section>
+      </div>
     </div>
   );
-};
+}
 
-export default Courses;
+// Simple reusable Course Card component
+function CourseCard({ course }) {
+  return (
+    <div className="card bg-white dark:bg-base-100 shadow-md rounded-lg overflow-hidden hover:shadow-lg transition">
+      <figure>
+        <img
+          src={course.thumbnail || "https://via.placeholder.com/300x200"}
+          alt={course.title}
+          className="h-40 w-full object-cover"
+        />
+      </figure>
+      <div className="card-body">
+        <h3 className="card-title">{course.title}</h3>
+        <p className="text-sm text-gray-500">{course.description}</p>
+        <div className="card-actions justify-end">
+          <a href={`/course/${course._id}`} className="btn btn-primary btn-sm">
+            Watch Now
+          </a>
+        </div>
+      </div>
+    </div>
+  );
+}
