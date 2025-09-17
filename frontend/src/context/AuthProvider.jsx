@@ -1,6 +1,4 @@
-import React, { createContext, useContext, useState, useEffect } from "react";
-import api from "../axios";
-import { toast } from "react-hot-toast";
+import { createContext, useContext, useEffect, useState } from "react";
 
 const AuthContext = createContext();
 
@@ -8,47 +6,50 @@ export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
 
+  const fetchUser = async () => {
+    try {
+      const res = await fetch(`${import.meta.env.VITE_API_URL}/api/auth/me`, {
+        credentials: "include", // ✅ send cookies
+      });
+      if (!res.ok) throw new Error("Not authenticated");
+      const data = await res.json();
+      setUser(data);
+    } catch (err) {
+      setUser(null);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
-    const checkUser = async () => {
-      try {
-        const res = await api.get("/auth/me", { withCredentials: true });
-        setUser(res.data.user);
-      } catch {
-        setUser(null);
-      } finally {
-        setLoading(false);
-      }
-    };
-    checkUser();
+    fetchUser();
   }, []);
 
-  const login = async ({ username, password }) => {
-    try {
-      const res = await api.post(
-        "/auth/login",
-        { username, password },
-        { withCredentials: true }
-      );
-      setUser(res.data.user);
-      return true;
-    } catch (err) {
-      toast.error(err.response?.data?.error || "Login failed");
-      return false;
+  const login = async (email, password) => {
+    const res = await fetch(`${import.meta.env.VITE_API_URL}/api/auth/login`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      credentials: "include", // ✅ set cookie on login
+      body: JSON.stringify({ email, password }),
+    });
+
+    if (res.ok) {
+      await fetchUser(); // ✅ refresh user state
+    } else {
+      throw new Error("Login failed");
     }
   };
 
   const logout = async () => {
-    try {
-      await api.post("/auth/logout", {}, { withCredentials: true });
-      setUser(null);
-      toast.success("Logged out successfully");
-    } catch {
-      toast.error("Logout failed");
-    }
+    await fetch(`${import.meta.env.VITE_API_URL}/api/auth/logout`, {
+      method: "POST",
+      credentials: "include",
+    });
+    setUser(null);
   };
 
   return (
-    <AuthContext.Provider value={{ user, setUser, login, logout, loading }}>
+    <AuthContext.Provider value={{ user, loading, login, logout }}>
       {children}
     </AuthContext.Provider>
   );

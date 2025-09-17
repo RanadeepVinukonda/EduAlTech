@@ -15,18 +15,35 @@ const getToken = (req) => {
 // Protect route
 export const protectRoute = async (req, res, next) => {
   try {
-    const token = getToken(req);
-    if (!token) return res.status(401).json({ error: "No token provided" });
+    let token;
+
+    // Check cookies first
+    if (req.cookies?.token) {
+      token = req.cookies.token;
+    }
+    // Or Authorization header
+    else if (
+      req.headers.authorization &&
+      req.headers.authorization.startsWith("Bearer")
+    ) {
+      token = req.headers.authorization.split(" ")[1];
+    }
+
+    if (!token) {
+      return res.status(401).json({ message: "Not authorized, no token" });
+    }
 
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    const user = await User.findById(decoded.userId).select("-password");
-    if (!user) return res.status(404).json({ error: "User not found" });
+    req.user = await User.findById(decoded.id).select("-password");
 
-    req.user = user;
+    if (!req.user) {
+      return res.status(401).json({ message: "User not found" });
+    }
+
     next();
-  } catch (err) {
-    console.error("Auth error:", err.message);
-    res.status(401).json({ error: "Invalid or expired token" });
+  } catch (error) {
+    console.error("Auth middleware error:", error.message);
+    res.status(401).json({ message: "Not authorized" });
   }
 };
 
