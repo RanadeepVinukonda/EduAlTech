@@ -4,7 +4,7 @@ import {
   getAllUsers,
   deleteUser,
   deleteLecture,
-} from "../controllers/adminController.js";
+} from "../controllers/adminControllers.js";
 
 const router = express.Router();
 
