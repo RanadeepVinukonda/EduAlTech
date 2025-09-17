@@ -8,7 +8,7 @@ import {
   getLectureById,
   getFrequentlyViewed,
   getPopularCourses,
-} from "../controllers/lectureController.js";
+} from "../controllers/lecturecontroller.js";
 
 import { protectRoute, authorizeRoles } from "../middleware/auth.js";
 
