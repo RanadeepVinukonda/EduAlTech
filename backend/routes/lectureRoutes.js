@@ -8,7 +8,7 @@ import {
   getLectureById,
   getFrequentlyViewed,
   getPopularCourses,
-} from "../controllers/lecturecontroller.js";
+} from "../controllers/lectureController.js";
 
 import { protectRoute, authorizeRoles } from "../middleware/auth.js";
 
@@ -18,7 +18,7 @@ const upload = multer({
   limits: { fileSize: 100 * 1024 * 1024 },
 });
 
-// ✅ Upload lecture (provider/admin)
+// Upload lecture (provider/admin)
 router.post(
   "/upload",
   protectRoute,
@@ -31,7 +31,7 @@ router.post(
   addLecture
 );
 
-// ✅ Get provider's own lectures
+// Get provider's own lectures
 router.get(
   "/mylectures",
   protectRoute,
@@ -39,18 +39,13 @@ router.get(
   getMyLectures
 );
 
-// ✅ Get lecture by id
+// Get lecture by ID (login required to watch)
 router.get("/lecture/:id", protectRoute, getLectureById);
 
-// ✅ Get all lectures (seeker/admin)
-router.get(
-  "/all",
-  protectRoute,
-  authorizeRoles("seeker", "admin"),
-  getAllLectures
-);
+// Get all lectures (public for viewing)
+router.get("/all", getAllLectures);
 
-// ✅ Delete lecture (provider/admin)
+// Delete lecture (provider/admin)
 router.delete(
   "/delete/:id",
   protectRoute,

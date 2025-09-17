@@ -1,3 +1,4 @@
+// ForgotPassword.jsx
 import { useState } from "react";
 import api from "../axios";
 import toast from "react-hot-toast";

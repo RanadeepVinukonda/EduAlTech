@@ -1,6 +1,9 @@
-// backend/routes/userRoutes.js
 import express from "express";
-import { updateUser ,forgotPassword,resetPassword} from "../controllers/userController.js";
+import {
+  updateUser,
+  forgotPassword,
+  resetPassword,
+} from "../controllers/userController.js";
 import { protectRoute } from "../middleware/auth.js";
 import multer from "multer";
 
@@ -16,6 +19,7 @@ router.put(
   ]),
   updateUser
 );
+
 router.post("/forgot-password", forgotPassword);
 router.post("/reset-password/:token", resetPassword);
 

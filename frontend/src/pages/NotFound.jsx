@@ -1,3 +1,4 @@
+// NotFound.jsx
 import { Link } from "react-router";
 
 const NotFound = () => {

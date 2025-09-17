@@ -18,7 +18,9 @@ const MyLectures = () => {
     video: null,
     materials: null,
   });
+  const [loading, setLoading] = useState(false);
 
+  // Fetch provider's lectures
   const fetchLectures = async () => {
     try {
       const res = await api.get("/courses/mylectures", {
@@ -26,8 +28,8 @@ const MyLectures = () => {
       });
       setLectures(res.data);
     } catch (err) {
-      toast.error("Failed to fetch lectures");
       console.error(err);
+      toast.error("Failed to fetch lectures");
     }
   };
 
@@ -35,21 +37,24 @@ const MyLectures = () => {
     if (user?.role === "provider") fetchLectures();
   }, [user]);
 
+  // Handle form changes
   const handleChange = (e) => {
     const { name, value, files } = e.target;
     setForm((prev) => ({
       ...prev,
       [name]: files
         ? name === "materials"
-          ? files // array of files
+          ? files // multiple files
           : files[0] // single file
         : value,
     }));
   };
 
+  // Handle lecture upload
   const handleUpload = async (e) => {
     e.preventDefault();
 
+    // Validation
     if (
       !form.title ||
       !form.category ||
@@ -63,18 +68,20 @@ const MyLectures = () => {
     }
 
     const formData = new FormData();
-
     for (let key in form) {
-      if (key === "materials" && form.materials) {
-        Array.from(form.materials).forEach((file) =>
-          formData.append("materials", file)
-        );
-      } else if (form[key]) {
-        formData.append(key, form[key]);
+      if (form[key]) {
+        if (key === "materials") {
+          Array.from(form.materials).forEach((file) =>
+            formData.append("materials", file)
+          );
+        } else {
+          formData.append(key, form[key]);
+        }
       }
     }
 
     try {
+      setLoading(true);
       const res = await api.post("/courses/upload", formData, {
         withCredentials: true,
         headers: { "Content-Type": "multipart/form-data" },
@@ -83,6 +90,7 @@ const MyLectures = () => {
       toast.success("Lecture uploaded successfully!");
       setLectures((prev) => [res.data.lecture, ...prev]);
 
+      // Reset form
       setForm({
         title: "",
         description: "",
@@ -97,6 +105,8 @@ const MyLectures = () => {
     } catch (err) {
       console.error(err);
       toast.error("Upload failed");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -180,6 +190,7 @@ const MyLectures = () => {
           className="textarea textarea-bordered sm:col-span-2"
         />
 
+        {/* Thumbnail */}
         <div className="form-control">
           <label className="label font-semibold text-sm text-gray-700">
             Thumbnail Image
@@ -199,6 +210,7 @@ const MyLectures = () => {
           )}
         </div>
 
+        {/* Video */}
         <div className="form-control">
           <label className="label font-semibold text-sm text-gray-700">
             Lecture Video
@@ -218,6 +230,7 @@ const MyLectures = () => {
           )}
         </div>
 
+        {/* Materials */}
         <div className="form-control sm:col-span-2">
           <label className="label font-semibold text-sm text-gray-700">
             Additional Materials (PDF, DOCX, etc.)
@@ -240,8 +253,9 @@ const MyLectures = () => {
         <button
           type="submit"
           className="btn btn-success col-span-1 sm:col-span-2"
+          disabled={loading}
         >
-          Upload
+          {loading ? "Uploading..." : "Upload"}
         </button>
       </form>
 

@@ -1,3 +1,4 @@
+// Profile.jsx
 import React from "react";
 import { useAuth } from "../context/AuthProvider";
 import { FaEdit } from "react-icons/fa";
@@ -13,7 +14,6 @@ export default function Profile() {
     <div className="max-w-4xl mx-auto mt-10 px-4 sm:px-6 lg:px-8">
       {/* Cover + Profile Image */}
       <div className="relative bg-white shadow rounded-lg overflow-hidden">
-        {/* Cover Image */}
         <div className="relative h-52 sm:h-64 w-full">
           <img
             src={
@@ -22,8 +22,6 @@ export default function Profile() {
             alt="Cover"
             className="w-full h-full object-cover"
           />
-
-          {/* Profile Image inside Cover */}
           <div className="absolute top-3 left-3 sm:top-4 sm:left-6">
             <img
               src={
@@ -34,8 +32,6 @@ export default function Profile() {
               className="w-20 h-20 sm:w-28 sm:h-28 rounded-full border-4 border-white shadow object-cover bg-white"
             />
           </div>
-
-          {/* Edit Button */}
           <button
             onClick={() => nav("/updateprofile")}
             className="absolute top-4 right-4 bg-white text-green-600 p-2 rounded-full shadow-md hover:bg-green-100 transition"
@@ -60,35 +56,29 @@ export default function Profile() {
             <span className="font-semibold">Email:</span>
             <p>{user.email || "Not Provided"}</p>
           </div>
-
           <div>
             <span className="font-semibold">Phone:</span>
             <p>{user.phone || "Not Provided"}</p>
           </div>
-
           <div>
             <span className="font-semibold">Address:</span>
             <p>{user.address || "Not Provided"}</p>
           </div>
-
           <div>
             <span className="font-semibold">Link:</span>
-            <p>
-              {user.link ? (
-                <a
-                  href={user.link}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-blue-600 underline break-all"
-                >
-                  {user.link}
-                </a>
-              ) : (
-                "Not Provided"
-              )}
-            </p>
+            {user.link ? (
+              <a
+                href={user.link}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-blue-600 underline break-all"
+              >
+                {user.link}
+              </a>
+            ) : (
+              "Not Provided"
+            )}
           </div>
-
           <div>
             <span className="font-semibold">Role:</span>
             <p className="capitalize">{user.role || "Not Provided"}</p>

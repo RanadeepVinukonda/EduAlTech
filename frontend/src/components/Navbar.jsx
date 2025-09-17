@@ -1,159 +1,118 @@
+// Navbar.jsx
 import React from "react";
-import { Link, useNavigate } from "react-router";
+import { Link, NavLink, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthProvider";
 import { toast } from "react-hot-toast";
 
-const Navbar = () => {
+export default function Navbar() {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
 
-  const getRoleBasedLink = () => {
-    if (user?.role === "admin")
-      return { to: "/admin", label: "Admin Dashboard" };
-    if (user?.role === "provider")
-      return { to: "/my-lectures", label: "My Lectures" };
-    return { to: "/courses", label: "Courses" };
-  };
-
-  const dynamicLink = getRoleBasedLink();
-
   const handleLogout = async () => {
-    await logout();
-    navigate("/");
+    try {
+      await logout();
+      toast.success("Logged out successfully!");
+      navigate("/login");
+    } catch {
+      toast.error("Logout failed");
+    }
   };
 
   return (
-    <div className="navbar bg-base-100 shadow-md px-4 md:px-10">
-      {/* Left Logo - MP4 Video */}
-      <div className="flex-1">
-        <Link to="/" className="flex items-center gap-2">
-          <video
-            src="/logo.mp4"
-            className="w-12 h-12 object-contain rounded-full"
-            autoPlay
-            loop
-            muted
-            playsInline
-          />
-          <span className="text-2xl font-extrabold text-green-700">
+    <nav className="bg-white shadow-md sticky top-0 z-50">
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="flex justify-between h-16 items-center">
+          <Link to="/" className="text-green-600 font-bold text-2xl">
             EduAltTech
-          </span>
-        </Link>
-      </div>
+          </Link>
 
-      {/* Desktop Navigation */}
-      <div className="hidden md:flex items-center gap-4">
-        <Link to="/" className="btn btn-ghost text-green-700">
-          Home
-        </Link>
-        <Link to="/about" className="btn btn-ghost text-green-700">
-          About
-        </Link>
-        <Link to={dynamicLink.to} className="btn btn-ghost text-green-700">
-          {dynamicLink.label}
-        </Link>
-        <Link to="/contact" className="btn btn-ghost text-green-700">
-          Contact
-        </Link>
-
-        {!user ? (
-          <>
-            <Link to="/login" className="btn btn-success btn-sm">
-              Login
-            </Link>
-            <Link to="/signup" className="btn btn-outline btn-success btn-sm">
-              Signup
-            </Link>
-          </>
-        ) : (
-          <div className="dropdown dropdown-end">
-            <div
-              tabIndex={0}
-              role="button"
-              className="btn btn-ghost btn-circle avatar"
+          <div className="flex items-center space-x-4">
+            <NavLink
+              to="/"
+              className={({ isActive }) =>
+                `hover:text-green-600 ${isActive ? "text-green-600" : ""}`
+              }
             >
-              <div className="w-10 rounded-full border-2 border-green-500">
-                <img
-                  src={
-                    user.profileImg ||
-                    `https://placehold.co/40x40?text=${user.username}`
+              Home
+            </NavLink>
+            <NavLink
+              to="/courses"
+              className={({ isActive }) =>
+                `hover:text-green-600 ${isActive ? "text-green-600" : ""}`
+              }
+            >
+              Courses
+            </NavLink>
+            <NavLink
+              to="/about"
+              className={({ isActive }) =>
+                `hover:text-green-600 ${isActive ? "text-green-600" : ""}`
+              }
+            >
+              About
+            </NavLink>
+            <NavLink
+              to="/contact"
+              className={({ isActive }) =>
+                `hover:text-green-600 ${isActive ? "text-green-600" : ""}`
+              }
+            >
+              Contact
+            </NavLink>
+
+            {user ? (
+              <>
+                {user.role === "provider" && (
+                  <NavLink
+                    to="/my-lectures"
+                    className={({ isActive }) =>
+                      `hover:text-green-600 ${isActive ? "text-green-600" : ""}`
+                    }
+                  >
+                    My Lectures
+                  </NavLink>
+                )}
+                {user.role === "admin" && (
+                  <NavLink
+                    to="/admin"
+                    className={({ isActive }) =>
+                      `hover:text-green-600 ${isActive ? "text-green-600" : ""}`
+                    }
+                  >
+                    Admin
+                  </NavLink>
+                )}
+                <NavLink
+                  to="/profile"
+                  className={({ isActive }) =>
+                    `hover:text-green-600 ${isActive ? "text-green-600" : ""}`
                   }
-                  alt="Profile"
-                />
-              </div>
-            </div>
-            <ul
-              tabIndex={0}
-              className="mt-3 z-[1] p-2 shadow menu menu-sm dropdown-content bg-base-100 rounded-box w-40"
-            >
-              <li>
-                <button onClick={() => navigate("/profile")}>Profile</button>
-              </li>
-              <li>
-                <button onClick={handleLogout}>Logout</button>
-              </li>
-            </ul>
+                >
+                  Profile
+                </NavLink>
+                <button
+                  onClick={handleLogout}
+                  className="btn btn-sm btn-outline btn-success"
+                >
+                  Logout
+                </button>
+              </>
+            ) : (
+              <>
+                <NavLink to="/login" className="btn btn-sm btn-success">
+                  Login
+                </NavLink>
+                <NavLink
+                  to="/signup"
+                  className="btn btn-sm btn-outline btn-success"
+                >
+                  Signup
+                </NavLink>
+              </>
+            )}
           </div>
-        )}
+        </div>
       </div>
-
-      {/* Mobile Menu */}
-      <div className="dropdown dropdown-end md:hidden">
-        <label tabIndex={0} className="btn btn-ghost">
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            className="h-6 w-6 text-green-700"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth="2"
-              d="M4 6h16M4 12h16M4 18h16"
-            />
-          </svg>
-        </label>
-        <ul
-          tabIndex={0}
-          className="menu menu-sm dropdown-content mt-3 z-[1] p-2 shadow bg-base-100 rounded-box w-52"
-        >
-          <li>
-            <Link to="/">Home</Link>
-          </li>
-          <li>
-            <Link to="/about">About</Link>
-          </li>
-          <li>
-            <Link to={dynamicLink.to}>{dynamicLink.label}</Link>
-          </li>
-          <li>
-            <Link to="/contact">Contact</Link>
-          </li>
-          {!user ? (
-            <>
-              <li>
-                <Link to="/login">Login</Link>
-              </li>
-              <li>
-                <Link to="/signup">Signup</Link>
-              </li>
-            </>
-          ) : (
-            <>
-              <li>
-                <button onClick={() => navigate("/profile")}>Profile</button>
-              </li>
-              <li>
-                <button onClick={handleLogout}>Logout</button>
-              </li>
-            </>
-          )}
-        </ul>
-      </div>
-    </div>
+    </nav>
   );
-};
-
-export default Navbar;
+}

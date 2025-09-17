@@ -1,4 +1,4 @@
-// src/pages/UpdateProfile.jsx
+// UpdateProfile.jsx
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router";
 import { useAuth } from "../context/AuthProvider";
@@ -20,11 +20,7 @@ const UpdateProfile = () => {
     coverImg: null,
   });
 
-  const [preview, setPreview] = useState({
-    profileImg: "",
-    coverImg: "",
-  });
-
+  const [preview, setPreview] = useState({ profileImg: "", coverImg: "" });
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
@@ -52,10 +48,7 @@ const UpdateProfile = () => {
     if (files) {
       const file = files[0];
       setForm((prev) => ({ ...prev, [name]: file }));
-      setPreview((prev) => ({
-        ...prev,
-        [name]: URL.createObjectURL(file),
-      }));
+      setPreview((prev) => ({ ...prev, [name]: URL.createObjectURL(file) }));
     } else {
       setForm((prev) => ({ ...prev, [name]: value }));
     }
@@ -67,9 +60,7 @@ const UpdateProfile = () => {
 
     const formData = new FormData();
     for (let key in form) {
-      if (form[key]) {
-        formData.append(key, form[key]);
-      }
+      if (form[key]) formData.append(key, form[key]);
     }
 
     try {

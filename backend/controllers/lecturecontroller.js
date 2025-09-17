@@ -1,11 +1,9 @@
 import { v2 as cloudinary } from "cloudinary";
 import Lecture from "../models/lecturemodel.js";
-import mongoose from "mongoose"; 
+import mongoose from "mongoose";
 
-
-
+// Add Lecture (Provider/Admin)
 export const addLecture = async (req, res) => {
-  console.log("🟢 [addLecture] Request received");
   try {
     const { title, description, category, classLevel, subject, course } =
       req.body;
@@ -13,133 +11,64 @@ export const addLecture = async (req, res) => {
     const videoFile = req.files?.video?.[0];
     const materialFiles = req.files?.materials || [];
 
-    console.log("📋 Body:", req.body);
-    console.log(
-      "🖼️ Thumbnail File:",
-      thumbnailFile?.originalname || "Not Provided"
-    );
-    console.log("🎥 Video File:", videoFile?.originalname || "Not Provided");
-    console.log(
-      "📎 Material Files:",
-      materialFiles.map((f) => f.originalname)
-    );
-
-    if (!title || !category || !videoFile || !thumbnailFile) {
+    if (!title || !category || !videoFile || !thumbnailFile)
       return res
         .status(400)
         .json({ error: "Title, category, video, and thumbnail are required" });
-    }
 
-    // Upload thumbnail
-    let thumbnailUpload;
-    try {
-      thumbnailUpload = await new Promise((resolve, reject) => {
+    // Helper for uploading to Cloudinary
+    const uploadToCloudinary = (file, folder, resource_type = "image") => {
+      return new Promise((resolve, reject) => {
         const stream = cloudinary.uploader.upload_stream(
-          { folder: "lectures/thumbnails" },
+          { folder, resource_type },
           (err, result) => {
             if (err) return reject(err);
             resolve(result.secure_url);
           }
         );
-        stream.end(thumbnailFile.buffer);
+        stream.end(file.buffer);
       });
-      console.log("✅ Thumbnail uploaded:", thumbnailUpload);
-    } catch (err) {
-      console.error("❌ Thumbnail upload error:", err);
-      return res.status(500).json({ error: "Thumbnail upload failed" });
-    }
+    };
 
-    // Upload video
-    let videoUpload;
-    try {
-      videoUpload = await new Promise((resolve, reject) => {
-        const stream = cloudinary.uploader.upload_stream(
-          { folder: "lectures/videos", resource_type: "video" },
-          (err, result) => {
-            if (err) return reject(err);
-            resolve(result.secure_url);
-          }
-        );
-        stream.end(videoFile.buffer);
-      });
-      console.log("✅ Video uploaded:", videoUpload);
-    } catch (err) {
-      console.error("❌ Video upload error:", err);
-      return res.status(500).json({ error: "Video upload failed" });
-    }
+    const thumbnailUrl = await uploadToCloudinary(
+      thumbnailFile,
+      "lectures/thumbnails"
+    );
+    const videoUrl = await uploadToCloudinary(
+      videoFile,
+      "lectures/videos",
+      "video"
+    );
 
-    // Upload materials
-    let materialUploads = [];
-    try {
-      materialUploads = await Promise.all(
-        materialFiles.map((file) => {
-          return new Promise((resolve, reject) => {
-            const stream = cloudinary.uploader.upload_stream(
-              {
-                folder: "lectures/materials",
-                resource_type: "raw",
-              },
-              (err, result) => {
-                if (err) return reject(err);
-                resolve({
-                  title: file.originalname,
-                  fileUrl: result.secure_url,
-                  type: file.mimetype.split("/")[1],
-                });
-              }
-            );
-            stream.end(file.buffer);
-          });
-        })
-      );
-      console.log(
-        "✅ Materials uploaded:",
-        materialUploads.map((m) => m.title)
-      );
-    } catch (err) {
-      console.error("❌ Material upload error:", err);
-      return res.status(500).json({ error: "Material upload failed" });
-    }
+    const materials = await Promise.all(
+      materialFiles.map(async (file) => ({
+        title: file.originalname,
+        fileUrl: await uploadToCloudinary(file, "lectures/materials", "raw"),
+        type: file.mimetype.split("/")[1],
+      }))
+    );
 
-    const lecture = new Lecture({
+    const lecture = await Lecture.create({
       title,
       description,
       category,
       classLevel: category === "Edu" ? classLevel : undefined,
       subject: category === "Edu" ? subject : undefined,
       course: category === "Edu" ? course : undefined,
-      thumbnailUrl: thumbnailUpload,
-      videoUrl: videoUpload,
+      thumbnailUrl,
+      videoUrl,
       uploadedBy: req.user._id,
-      materials: materialUploads,
+      materials,
     });
 
-    await lecture.save();
-    console.log("📦 Lecture saved:", lecture._id);
-
     res.status(201).json({ message: "Lecture uploaded", lecture });
-  } catch (error) {
-    console.error("🔥 Unexpected server error in addLecture:", error);
-    res.status(500).json({ error: "Internal server error" });
+  } catch (err) {
+    console.error("Error uploading lecture:", err);
+    res.status(500).json({ error: "Server error" });
   }
 };
 
-
-// Get all lectures by provider
-export const getMyLectures = async (req, res) => {
-  try {
-    const lectures = await Lecture.find({ uploadedBy: req.user._id }).populate(
-      "uploadedBy",
-      "fullName"
-    );
-    res.status(200).json(lectures);
-  } catch (error) {
-    console.error("Error in getMyLectures:", error.message);
-    res.status(500).json({ error: "Internal server error" });
-  }
-};
-
-// Get all lectures (filterable)
+// Get all lectures visible to everyone
 export const getAllLectures = async (req, res) => {
   try {
     const filter = {};
@@ -153,54 +82,32 @@ export const getAllLectures = async (req, res) => {
       "fullName"
     );
     res.status(200).json(lectures);
-  } catch (error) {
-    console.error("Error in getAllLectures:", error.message);
-    res.status(500).json({ error: "Internal server error" });
+  } catch (err) {
+    console.error("Error fetching lectures:", err);
+    res.status(500).json({ error: "Server error" });
   }
 };
 
-// Get one lecture by ID (used in CoursePlayer)
+// Watch lecture by ID - requires login
 export const getLectureById = async (req, res) => {
+  if (!req.user)
+    return res.status(401).json({ error: "Login required to watch lecture" });
+
   try {
     const lecture = await Lecture.findByIdAndUpdate(
       req.params.id,
-      { $inc: { views: 1 } }, // auto-increment views
+      { $inc: { views: 1 } },
       { new: true }
     );
-    if (!lecture) {
-      return res.status(404).json({ error: "Lecture not found" });
-    }
+    if (!lecture) return res.status(404).json({ error: "Lecture not found" });
     res.status(200).json(lecture);
-  } catch (error) {
-    console.error("Error in getLectureById:", error.message);
-    res.status(500).json({ error: "Internal server error" });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Server error" });
   }
 };
 
-
-// Delete lecture and cloudinary files
-export const deleteLecture = async (req, res) => {
-  try {
-    const { id } = req.params;
-
-    if (!mongoose.Types.ObjectId.isValid(id)) {
-      return res.status(400).json({ error: "Invalid lecture ID" });
-    }
-
-    const lecture = await Lecture.findById(id);
-    if (!lecture) {
-      return res.status(404).json({ error: "Lecture not found" });
-    }
-
-    // Delete lecture
-    await Lecture.findByIdAndDelete(id);
-
-    res.status(200).json({ message: "Lecture deleted successfully" });
-  } catch (error) {
-    console.error("Error deleting lecture:", error);
-    res.status(500).json({ error: "Internal server error" });
-  }
-};
+// Get frequently viewed lectures
 export const getFrequentlyViewed = async (req, res) => {
   try {
     const lectures = await Lecture.find()
@@ -208,11 +115,13 @@ export const getFrequentlyViewed = async (req, res) => {
       .limit(5)
       .populate("uploadedBy", "fullName");
     res.status(200).json(lectures);
-  } catch (error) {
-    console.error("Error in getFrequentlyViewed:", error.message);
-    res.status(500).json({ error: "Internal server error" });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Server error" });
   }
 };
+
+// Get popular courses
 export const getPopularCourses = async (req, res) => {
   try {
     const lectures = await Lecture.find()
@@ -220,8 +129,40 @@ export const getPopularCourses = async (req, res) => {
       .limit(5)
       .populate("uploadedBy", "fullName");
     res.status(200).json(lectures);
-  } catch (error) {
-    console.error("Error in getPopularCourses:", error.message);
-    res.status(500).json({ error: "Internal server error" });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Server error" });
+  }
+};
+
+// Provider/Admin - get own lectures
+export const getMyLectures = async (req, res) => {
+  try {
+    const lectures = await Lecture.find({ uploadedBy: req.user._id }).populate(
+      "uploadedBy",
+      "fullName"
+    );
+    res.status(200).json(lectures);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Server error" });
+  }
+};
+
+// Delete lecture
+export const deleteLecture = async (req, res) => {
+  try {
+    const { id } = req.params;
+    if (!mongoose.Types.ObjectId.isValid(id))
+      return res.status(400).json({ error: "Invalid lecture ID" });
+
+    const lecture = await Lecture.findById(id);
+    if (!lecture) return res.status(404).json({ error: "Lecture not found" });
+
+    await Lecture.findByIdAndDelete(id);
+    res.status(200).json({ message: "Lecture deleted successfully" });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Server error" });
   }
 };

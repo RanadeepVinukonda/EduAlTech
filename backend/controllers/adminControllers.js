@@ -1,4 +1,3 @@
-// controllers/adminController.js
 import User from "../models/usermodel.js";
 import Lecture from "../models/lecturemodel.js";
 
@@ -13,7 +12,6 @@ export const getAllUsers = async (req, res) => {
   }
 };
 
-
 // Delete a user
 export const deleteUser = async (req, res) => {
   try {
@@ -24,6 +22,7 @@ export const deleteUser = async (req, res) => {
     res.status(500).json({ error: "Server error" });
   }
 };
+
 // Delete a lecture
 export const deleteLecture = async (req, res) => {
   try {

@@ -1,3 +1,4 @@
+// Footer.jsx
 import { Link } from "react-router";
 import { motion } from "framer-motion";
 

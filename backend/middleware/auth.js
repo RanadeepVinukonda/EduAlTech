@@ -1,10 +1,9 @@
-// middleware/auth.js
 import jwt from "jsonwebtoken";
 import mongoose from "mongoose";
 import User from "../models/usermodel.js";
 import Lecture from "../models/lecturemodel.js";
 
-// ✅ Get token from cookie or Authorization header
+// Get token from cookie or header
 const getToken = (req) => {
   if (req.cookies?.jwt) return req.cookies.jwt;
   if (req.headers.authorization?.startsWith("Bearer")) {
@@ -13,7 +12,7 @@ const getToken = (req) => {
   return null;
 };
 
-// ✅ Protect route
+// Protect route
 export const protectRoute = async (req, res, next) => {
   try {
     const token = getToken(req);
@@ -26,12 +25,12 @@ export const protectRoute = async (req, res, next) => {
     req.user = user;
     next();
   } catch (err) {
-    console.error("❌ Auth error:", err.message);
+    console.error("Auth error:", err.message);
     res.status(401).json({ error: "Invalid or expired token" });
   }
 };
 
-// ✅ Role-based access
+// Role-based access
 export const authorizeRoles =
   (...roles) =>
   async (req, res, next) => {
@@ -51,9 +50,8 @@ export const authorizeRoles =
     // Only providers can delete their own lectures
     if (req.method === "DELETE" && userRole === "provider") {
       const { id } = req.params;
-      if (!mongoose.Types.ObjectId.isValid(id)) {
+      if (!mongoose.Types.ObjectId.isValid(id))
         return res.status(400).json({ error: "Invalid lecture ID" });
-      }
 
       const lecture = await Lecture.findById(id);
       if (!lecture) return res.status(404).json({ error: "Lecture not found" });
