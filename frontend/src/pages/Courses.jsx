@@ -44,14 +44,14 @@ export default function Courses() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center min-h-screen text-lg text-gray-700">
+      <div className="flex items-center justify-center min-h-screen text-lg text-gray-700 bg-base-100">
         Loading courses...
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-base-200 p-6">
+    <div className="min-h-screen bg-base-100 p-6">
       <div className="max-w-6xl mx-auto space-y-10">
         {/* Search Bar */}
         <div className="flex justify-center mb-8">
@@ -66,7 +66,7 @@ export default function Courses() {
 
         {/* Popular Courses */}
         <section>
-          <h2 className="text-2xl font-bold mb-4 text-gray-800">
+          <h2 className="text-2xl font-bold mb-4 text-primary">
             Popular Courses
           </h2>
           {popularCourses.length > 0 ? (
@@ -82,7 +82,7 @@ export default function Courses() {
 
         {/* Frequently Opened Courses */}
         <section>
-          <h2 className="text-2xl font-bold mb-4 text-gray-800">
+          <h2 className="text-2xl font-bold mb-4 text-primary">
             Frequently Opened Courses
           </h2>
           {frequentCourses.length > 0 ? (
@@ -100,7 +100,7 @@ export default function Courses() {
 
         {/* All Courses with Search */}
         <section>
-          <h2 className="text-2xl font-bold mb-4 text-gray-800">All Courses</h2>
+          <h2 className="text-2xl font-bold mb-4 text-primary">All Courses</h2>
           {filteredCourses.length > 0 ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {filteredCourses.map((course) => (
@@ -121,7 +121,7 @@ export default function Courses() {
 // Reusable Course Card component
 function CourseCard({ course }) {
   return (
-    <div className="card bg-white shadow-md rounded-2xl overflow-hidden hover:shadow-lg transition-transform transform hover:-translate-y-1">
+    <div className="card bg-base-100 shadow-md rounded-2xl overflow-hidden hover:shadow-lg transition-transform transform hover:-translate-y-1">
       <figure>
         <img
           src={course.thumbnail || "https://via.placeholder.com/300x200"}
@@ -133,7 +133,7 @@ function CourseCard({ course }) {
         <h3 className="card-title text-lg font-semibold text-gray-800">
           {course.title}
         </h3>
-        <p className="text-sm text-gray-500 mt-1">{course.description}</p>
+        <p className="text-sm text-gray-600 mt-1">{course.description}</p>
         <div className="card-actions justify-end mt-3">
           <a href={`/course/${course._id}`} className="btn btn-primary btn-sm">
             Watch Now
