@@ -1,13 +1,11 @@
 // Login.jsx
 import React, { useState } from "react";
 import { useNavigate } from "react-router";
-import { useAuth } from "../context/AuthProvider";
-import api from "../axios";
+import api from "../axios"; // ✅ using your axios.js setup
 import { toast } from "react-hot-toast";
 import { AiFillEye, AiFillEyeInvisible } from "react-icons/ai";
 
 export default function Login() {
-  const { login } = useAuth();
   const navigate = useNavigate();
 
   const [form, setForm] = useState({ username: "", password: "" });
@@ -21,12 +19,22 @@ export default function Login() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
+
     try {
-      const ok = await login(form); // login function handles token/cookie
-      if (ok) navigate("/profile");
-      else toast.error("Invalid username or password");
+      // 👇 This uses your axios baseURL and calls /auth/login
+      const res = await api.post("/auth/login", form);
+
+      if (res.data?.success) {
+        toast.success("Login successful!");
+        navigate("/profile");
+      } else {
+        toast.error(res.data?.message || "Invalid username or password");
+      }
     } catch (err) {
-      toast.error("Login failed, try again");
+      console.error("Login error:", err);
+      toast.error(
+        err.response?.data?.message || "Login failed, please try again"
+      );
     } finally {
       setLoading(false);
     }
