@@ -2,96 +2,110 @@ import bcrypt from "bcryptjs";
 import User from "../models/usermodel.js";
 import { generateTokenAndSetCookie } from "../lib/utils/generateToken.js";
 
-// REGISTER USER
-export const register = async (req, res) => {
+// ✅ SIGNUP
+export const signup = async (req, res) => {
   try {
-    const { name, email, password } = req.body;
+    const { fullName, username, email, password, role } = req.body;
 
-    if (!name || !email || !password) {
-      return res.status(400).json({ message: "All fields are required" });
-    }
+    if (!fullName || !username || !email || !password || !role)
+      return res.status(400).json({ error: "All fields are required" });
 
-    const existingUser = await User.findOne({ email });
-    if (existingUser) {
-      return res.status(409).json({ message: "Email already registered" });
-    }
+    if (!["seeker", "provider", "admin"].includes(role))
+      return res.status(400).json({ error: "Invalid role" });
 
-    const salt = await bcrypt.genSalt(10);
-    const hashedPassword = await bcrypt.hash(password, salt);
+    const existingUser = await User.findOne({ username });
+    if (existingUser)
+      return res.status(400).json({ error: "Username already taken" });
+
+    const existingEmail = await User.findOne({ email });
+    if (existingEmail)
+      return res.status(400).json({ error: "Email already taken" });
+
+    const hashedPassword = await bcrypt.hash(password, 10);
 
     const newUser = await User.create({
-      name,
+      fullName,
+      username,
       email,
       password: hashedPassword,
+      role,
     });
 
-    const token = generateTokenAndSetCookie(res, newUser._id);
+    // ✅ FIX: Correct argument order
+    generateTokenAndSetCookie(res, newUser._id);
 
     res.status(201).json({
-      message: "User registered successfully",
-      user: {
-        _id: newUser._id,
-        name: newUser.name,
-        email: newUser.email,
-      },
-      token,
+      _id: newUser._id,
+      fullName: newUser.fullName,
+      username: newUser.username,
+      email: newUser.email,
+      role: newUser.role,
     });
-  } catch (error) {
-    console.error("Register Error:", error.message);
-    res.status(500).json({ message: "Server error during registration" });
+  } catch (err) {
+    console.error("Signup Error:", err.message);
+    res.status(500).json({ error: "Server error during signup" });
   }
 };
 
-// LOGIN USER
+// ✅ LOGIN
 export const login = async (req, res) => {
   try {
-    const { email, password } = req.body;
+    const { username, password } = req.body;
 
-    if (!email || !password) {
-      return res
-        .status(400)
-        .json({ message: "Email and password are required" });
-    }
+    if (!username || !password)
+      return res.status(400).json({ error: "Username and password required" });
 
-    const user = await User.findOne({ email });
-    if (!user) {
-      return res.status(404).json({ message: "User not found" });
-    }
+    const user = await User.findOne({ username });
+    if (!user) return res.status(404).json({ error: "User not found" });
 
-    const isPasswordMatch = await bcrypt.compare(password, user.password);
-    if (!isPasswordMatch) {
-      return res.status(401).json({ message: "Invalid password" });
-    }
+    const isMatch = await bcrypt.compare(password, user.password);
+    if (!isMatch) return res.status(401).json({ error: "Invalid password" });
 
-    const token = generateTokenAndSetCookie(res, user._id);
+    // ✅ FIX: Correct argument order
+    generateTokenAndSetCookie(res, user._id);
 
     res.status(200).json({
-      message: "Login successful",
-      user: {
-        _id: user._id,
-        name: user.name,
-        email: user.email,
-      },
-      token,
+      _id: user._id,
+      fullName: user.fullName,
+      username: user.username,
+      email: user.email,
+      role: user.role,
+      profileImg: user.profileImg || "",
+      coverImg: user.coverImg || "",
+      phone: user.phone || "",
+      address: user.address || "",
+      link: user.link || "",
+      bio: user.bio || "",
     });
-  } catch (error) {
-    console.error("Login Error:", error.message);
-    res.status(500).json({ message: "Server error during login" });
+  } catch (err) {
+    console.error("Login Error:", err.message);
+    res.status(500).json({ error: "Server error during login" });
   }
 };
 
-// LOGOUT USER
-export const logout = async (req, res) => {
+// ✅ LOGOUT
+export const logout = async (_, res) => {
   try {
     res.clearCookie("token", {
       httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
       sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
+      secure: process.env.NODE_ENV === "production",
     });
+    res.status(200).json({ message: "Logged out successfully" });
+  } catch (err) {
+    console.error("Logout Error:", err.message);
+    res.status(500).json({ error: "Server error during logout" });
+  }
+};
 
-    res.status(200).json({ message: "Logout successful" });
-  } catch (error) {
-    console.error("Logout Error:", error.message);
-    res.status(500).json({ message: "Server error during logout" });
+// ✅ GET LOGGED-IN USER
+export const getMe = async (req, res) => {
+  try {
+    const user = await User.findById(req.user._id).select("-password");
+    if (!user) return res.status(404).json({ error: "User not found" });
+    res.status(200).json(user);
+  } catch (err) {
+    console.error("getMe Error:", err.message);
+    res.status(500).json({ error: "Server error during getMe" });
   }
 };

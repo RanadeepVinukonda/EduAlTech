@@ -3,7 +3,7 @@ import {
   signup,
   login,
   logout,
-  getMe,
+  getMe
 } from "../controllers/authControllers.js";
 import { protectRoute } from "../middleware/auth.js";
 
