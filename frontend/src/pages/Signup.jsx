@@ -1,4 +1,3 @@
-// Signup.jsx
 import React, { useState } from "react";
 import { useNavigate } from "react-router";
 import { useAuth } from "../context/AuthProvider";
@@ -27,12 +26,13 @@ export default function Signup() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
+
     try {
-      // Signup
+      // 1️⃣ Signup
       await api.post("/auth/signup", form, { withCredentials: true });
       toast.success("Signup successful! Logging you in...");
 
-      // Auto-login after signup
+      // 2️⃣ Auto-login after signup
       const ok = await login({
         username: form.username,
         password: form.password,
@@ -42,6 +42,7 @@ export default function Signup() {
       else toast.error("Auto-login failed, please login manually");
     } catch (err) {
       toast.error(err?.response?.data?.error || "Signup failed");
+      console.error("Signup error:", err);
     } finally {
       setLoading(false);
     }
@@ -66,6 +67,7 @@ export default function Signup() {
           className="input input-bordered w-full"
           required
         />
+
         <input
           type="text"
           name="username"
@@ -75,6 +77,7 @@ export default function Signup() {
           className="input input-bordered w-full"
           required
         />
+
         <input
           type="email"
           name="email"
