@@ -2,13 +2,13 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router";
 import { toast } from "react-hot-toast";
 import { AiFillEye, AiFillEyeInvisible } from "react-icons/ai";
-import { useAuth } from "../context/AuthProvider"; // ✅ use your auth context
+import { useAuth } from "../context/AuthProvider"; // ✅ use context
 
 export default function Login() {
   const navigate = useNavigate();
-  const { login } = useAuth(); // ✅ use login function from context
+  const { login } = useAuth(); // ✅ from AuthProvider
 
-  const [form, setForm] = useState({ email: "", password: "" });
+  const [form, setForm] = useState({ username: "", password: "" });
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
 
@@ -21,11 +21,11 @@ export default function Login() {
     setLoading(true);
 
     try {
-      await login(form); // ✅ uses AuthProvider's login
+      await login(form); // ✅ calls backend through AuthProvider
       toast.success("Login successful!");
       navigate("/profile");
     } catch (err) {
-      toast.error(err.message || "Invalid email or password");
+      toast.error(err.message || "Invalid username or password");
     } finally {
       setLoading(false);
     }
@@ -39,17 +39,18 @@ export default function Login() {
       >
         <h2 className="text-3xl font-bold text-center text-primary">Login</h2>
 
-        {/* ✅ Email instead of username */}
+        {/* ✅ Username input */}
         <input
-          type="email"
-          name="email"
-          placeholder="Email"
-          value={form.email}
+          type="text"
+          name="username"
+          placeholder="Username"
+          value={form.username}
           onChange={handleChange}
           className="input input-bordered w-full"
           required
         />
 
+        {/* ✅ Password input with toggle */}
         <div className="relative">
           <input
             type={showPassword ? "text" : "password"}
