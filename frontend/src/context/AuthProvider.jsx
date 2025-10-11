@@ -1,67 +1,46 @@
-import { createContext, useContext, useEffect, useState } from "react";
+import { createContext, useContext, useState } from "react";
 import api from "../axios";
 
 const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
-  const [user, setUser] = useState(() => {
-    // Restore user from sessionStorage (not localStorage)
-    const storedUser = sessionStorage.getItem("user");
-    return storedUser ? JSON.parse(storedUser) : null;
-  });
-  const [loading, setLoading] = useState(true);
+  const [user, setUser] = useState(null); // user state
+  const [loading, setLoading] = useState(false); // loading state for login/logout
 
-  // Fetch logged-in user (auto-login)
-  const fetchUser = async () => {
-    try {
-      const res = await api.get("/auth/me", { withCredentials: true });
-      setUser(res.data);
-      sessionStorage.setItem("user", JSON.stringify(res.data));
-    } catch (err) {
-      setUser(null);
-      sessionStorage.removeItem("user");
-      console.error("Fetch user error:", err);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    fetchUser();
-
-    // Clear session on browser close or reload
-    const handleUnload = () => {
-      sessionStorage.removeItem("user");
-    };
-    window.addEventListener("beforeunload", handleUnload);
-    return () => window.removeEventListener("beforeunload", handleUnload);
-  }, []);
-
-  // ✅ Fixed Login function
-  const login = async ({ email, password }) => {
+  // Login function
+  const login = async ({ username, password }) => {
+    setLoading(true);
     try {
       const res = await api.post(
         "/auth/login",
-        { email, password },
+        { username, password },
         { withCredentials: true }
       );
-      setUser(res.data);
-      sessionStorage.setItem("user", JSON.stringify(res.data));
+
+      setUser(res.data); // set user state
+      sessionStorage.setItem("user", JSON.stringify(res.data)); // store session temporarily
+      setLoading(false);
       return true;
     } catch (err) {
       console.error("Login error:", err);
-      throw new Error(err?.response?.data?.error || "Login failed");
+      setLoading(false);
+      throw new Error(
+        err?.response?.data?.error || "Invalid username or password"
+      );
     }
   };
 
   // Logout function
   const logout = async () => {
+    setLoading(true);
     try {
       await api.post("/auth/logout", {}, { withCredentials: true });
       setUser(null);
       sessionStorage.removeItem("user");
     } catch (err) {
       console.error("Logout error:", err);
+    } finally {
+      setLoading(false);
     }
   };
 

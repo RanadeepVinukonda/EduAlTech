@@ -1,12 +1,12 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router";
+import { useAuth } from "../context/AuthProvider";
 import { toast } from "react-hot-toast";
 import { AiFillEye, AiFillEyeInvisible } from "react-icons/ai";
-import { useAuth } from "../context/AuthProvider"; // ✅ use context
 
 export default function Login() {
+  const { login } = useAuth();
   const navigate = useNavigate();
-  const { login } = useAuth(); // ✅ from AuthProvider
 
   const [form, setForm] = useState({ username: "", password: "" });
   const [loading, setLoading] = useState(false);
@@ -21,25 +21,24 @@ export default function Login() {
     setLoading(true);
 
     try {
-      await login(form); // ✅ calls backend through AuthProvider
+      await login({ username: form.username, password: form.password });
       toast.success("Login successful!");
       navigate("/profile");
     } catch (err) {
-      toast.error(err.message || "Invalid username or password");
+      toast.error(err.message);
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center px-4 bg-base-200">
+    <div className="min-h-screen flex items-center justify-center px-4 bg-white">
       <form
         onSubmit={handleSubmit}
         className="bg-white shadow-xl rounded-2xl p-8 w-full max-w-md md:max-w-lg space-y-5"
       >
         <h2 className="text-3xl font-bold text-center text-primary">Login</h2>
 
-        {/* ✅ Username input */}
         <input
           type="text"
           name="username"
@@ -50,7 +49,6 @@ export default function Login() {
           required
         />
 
-        {/* ✅ Password input with toggle */}
         <div className="relative">
           <input
             type={showPassword ? "text" : "password"}
