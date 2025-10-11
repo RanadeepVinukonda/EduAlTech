@@ -1,11 +1,32 @@
-import { createContext, useContext, useState } from "react";
+import { createContext, useContext, useState, useEffect } from "react";
 import api from "../axios";
 
 const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
-  const [user, setUser] = useState(null); // user state
-  const [loading, setLoading] = useState(false); // loading state for login/logout
+  const [user, setUser] = useState(() => {
+    // restore user from sessionStorage (only persists until tab closes)
+    const storedUser = sessionStorage.getItem("user");
+    return storedUser ? JSON.parse(storedUser) : null;
+  });
+  const [loading, setLoading] = useState(false);
+
+  // Refresh user from backend if session exists
+  useEffect(() => {
+    const loadUser = async () => {
+      if (user) {
+        try {
+          const res = await api.get("/auth/me", { withCredentials: true });
+          setUser(res.data);
+        } catch (err) {
+          console.error("Fetch user error:", err);
+          setUser(null);
+          sessionStorage.removeItem("user");
+        }
+      }
+    };
+    loadUser();
+  }, []);
 
   // Login function
   const login = async ({ username, password }) => {
@@ -16,9 +37,8 @@ export const AuthProvider = ({ children }) => {
         { username, password },
         { withCredentials: true }
       );
-
-      setUser(res.data); // set user state
-      sessionStorage.setItem("user", JSON.stringify(res.data)); // store session temporarily
+      setUser(res.data);
+      sessionStorage.setItem("user", JSON.stringify(res.data));
       setLoading(false);
       return true;
     } catch (err) {
