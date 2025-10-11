@@ -1,14 +1,14 @@
-// Login.jsx
 import React, { useState } from "react";
 import { useNavigate } from "react-router";
-import api from "../axios"; // ✅ using your axios.js setup
 import { toast } from "react-hot-toast";
 import { AiFillEye, AiFillEyeInvisible } from "react-icons/ai";
+import { useAuth } from "../context/AuthProvider"; // ✅ use your auth context
 
 export default function Login() {
   const navigate = useNavigate();
+  const { login } = useAuth(); // ✅ use login function from context
 
-  const [form, setForm] = useState({ username: "", password: "" });
+  const [form, setForm] = useState({ email: "", password: "" });
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
 
@@ -21,20 +21,11 @@ export default function Login() {
     setLoading(true);
 
     try {
-      // 👇 This uses your axios baseURL and calls /auth/login
-      const res = await api.post("/auth/login", form);
-
-      if (res.data?.success) {
-        toast.success("Login successful!");
-        navigate("/profile");
-      } else {
-        toast.error(res.data?.message || "Invalid username or password");
-      }
+      await login(form); // ✅ uses AuthProvider's login
+      toast.success("Login successful!");
+      navigate("/profile");
     } catch (err) {
-      console.error("Login error:", err);
-      toast.error(
-        err.response?.data?.message || "Login failed, please try again"
-      );
+      toast.error(err.message || "Invalid email or password");
     } finally {
       setLoading(false);
     }
@@ -48,11 +39,12 @@ export default function Login() {
       >
         <h2 className="text-3xl font-bold text-center text-primary">Login</h2>
 
+        {/* ✅ Email instead of username */}
         <input
-          type="text"
-          name="username"
-          placeholder="Username"
-          value={form.username}
+          type="email"
+          name="email"
+          placeholder="Email"
+          value={form.email}
           onChange={handleChange}
           className="input input-bordered w-full"
           required

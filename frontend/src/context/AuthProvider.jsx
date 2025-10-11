@@ -5,7 +5,7 @@ const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(() => {
-    // Try restoring user from sessionStorage (not localStorage)
+    // Restore user from sessionStorage (not localStorage)
     const storedUser = sessionStorage.getItem("user");
     return storedUser ? JSON.parse(storedUser) : null;
   });
@@ -16,10 +16,10 @@ export const AuthProvider = ({ children }) => {
     try {
       const res = await api.get("/auth/me", { withCredentials: true });
       setUser(res.data);
-      sessionStorage.setItem("user", JSON.stringify(res.data)); // ✅ Save session
+      sessionStorage.setItem("user", JSON.stringify(res.data));
     } catch (err) {
       setUser(null);
-      sessionStorage.removeItem("user"); // ✅ Clear invalid session
+      sessionStorage.removeItem("user");
       console.error("Fetch user error:", err);
     } finally {
       setLoading(false);
@@ -29,7 +29,7 @@ export const AuthProvider = ({ children }) => {
   useEffect(() => {
     fetchUser();
 
-    // ✅ Clear session on browser close or reload
+    // Clear session on browser close or reload
     const handleUnload = () => {
       sessionStorage.removeItem("user");
     };
@@ -37,16 +37,16 @@ export const AuthProvider = ({ children }) => {
     return () => window.removeEventListener("beforeunload", handleUnload);
   }, []);
 
-  // Login function
-  const login = async ({ username, password }) => {
+  // ✅ Fixed Login function
+  const login = async ({ email, password }) => {
     try {
       const res = await api.post(
         "/auth/login",
-        { username, password },
+        { email, password },
         { withCredentials: true }
       );
       setUser(res.data);
-      sessionStorage.setItem("user", JSON.stringify(res.data)); // ✅ Store session
+      sessionStorage.setItem("user", JSON.stringify(res.data));
       return true;
     } catch (err) {
       console.error("Login error:", err);
@@ -59,7 +59,7 @@ export const AuthProvider = ({ children }) => {
     try {
       await api.post("/auth/logout", {}, { withCredentials: true });
       setUser(null);
-      sessionStorage.removeItem("user"); // ✅ Clear session
+      sessionStorage.removeItem("user");
     } catch (err) {
       console.error("Logout error:", err);
     }
