@@ -1,145 +1,148 @@
-// Courses.jsx
 import React, { useEffect, useState } from "react";
-import api from "../axios";
-import { toast } from "react-hot-toast";
+import CourseCard from "../components/CourseCard";
+import api from "../api/axios";
 
-export default function Courses() {
-  const [courses, setCourses] = useState([]);
-  const [popularCourses, setPopularCourses] = useState([]);
-  const [frequentCourses, setFrequentCourses] = useState([]);
-  const [search, setSearch] = useState("");
+const Courses = () => {
+  const [lectures, setLectures] = useState([]);
+  const [filteredLectures, setFilteredLectures] = useState([]);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [category, setCategory] = useState("Edu");
+  const [classLevel, setClassLevel] = useState("");
+  const [subject, setSubject] = useState("");
   const [loading, setLoading] = useState(true);
 
-  // Fetch courses
+  // Fetch all lectures using axios
   useEffect(() => {
-    const fetchCourses = async () => {
+    const fetchLectures = async () => {
       try {
         setLoading(true);
+        const { data } = await api.get("/lectures/all");
 
-        const [allRes, popularRes, frequentRes] = await Promise.all([
-          api.get("/courses"),
-          api.get("/courses/popular"),
-          api.get("/courses/frequent"),
-        ]);
-
-        setCourses(allRes.data?.courses || []);
-        setPopularCourses(popularRes.data?.courses || []);
-        setFrequentCourses(frequentRes.data?.courses || []);
+        if (Array.isArray(data)) {
+          setLectures(data);
+          setFilteredLectures(data.filter((l) => l.category === "Edu"));
+        }
       } catch (err) {
-        toast.error(err?.response?.data?.error || "Failed to fetch courses");
+        console.error("Failed to load lectures:", err);
       } finally {
         setLoading(false);
       }
     };
 
-    fetchCourses();
+    fetchLectures();
   }, []);
 
-  // Search filter
-  const filteredCourses = Array.isArray(courses)
-    ? courses.filter((c) =>
-        c.title?.toLowerCase().includes(search.toLowerCase())
-      )
-    : [];
+  // Debounced search and filters
+  useEffect(() => {
+    const timeout = setTimeout(() => {
+      let filtered = lectures.filter((l) => l.category === category);
 
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center min-h-screen text-lg text-gray-700 bg-base-100">
-        Loading courses...
-      </div>
-    );
-  }
+      if (classLevel)
+        filtered = filtered.filter(
+          (l) => l.classLevel?.toLowerCase() === classLevel.toLowerCase().trim()
+        );
+
+      if (subject)
+        filtered = filtered.filter((l) =>
+          l.subject?.toLowerCase().includes(subject.toLowerCase().trim())
+        );
+
+      if (searchTerm)
+        filtered = filtered.filter(
+          (l) =>
+            l.title?.toLowerCase().includes(searchTerm.toLowerCase().trim()) ||
+            l.course?.toLowerCase().includes(searchTerm.toLowerCase().trim()) ||
+            l.subject?.toLowerCase().includes(searchTerm.toLowerCase().trim())
+        );
+
+      setFilteredLectures(filtered);
+    }, 400); // debounce for smoother UX
+
+    return () => clearTimeout(timeout);
+  }, [searchTerm, category, classLevel, subject, lectures]);
 
   return (
-    <div className="min-h-screen bg-base-100 p-6">
-      <div className="max-w-6xl mx-auto space-y-10">
-        {/* Search Bar */}
-        <div className="flex justify-center mb-8">
+    <div className="min-h-screen bg-neutral py-10 px-4 sm:px-8">
+      <div className="max-w-7xl mx-auto">
+        {/* Header */}
+        <h1 className="text-3xl font-semibold text-green-700 mb-8">
+          Explore Courses
+        </h1>
+
+        {/* Tabs for Category */}
+        <div className="tabs mb-8">
+          <button
+            onClick={() => setCategory("Edu")}
+            className={`tab tab-bordered ${
+              category === "Edu"
+                ? "tab-active text-green-700 font-semibold"
+                : ""
+            }`}
+          >
+            Education
+          </button>
+          <button
+            onClick={() => setCategory("Alt")}
+            className={`tab tab-bordered ${
+              category === "Alt"
+                ? "tab-active text-green-700 font-semibold"
+                : ""
+            }`}
+          >
+            Alternative Education
+          </button>
+        </div>
+
+        {/* Filters */}
+        <div className="flex flex-col md:flex-row gap-4 mb-8">
           <input
             type="text"
-            placeholder="Search courses..."
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            className="input input-bordered w-full max-w-md focus:outline-none focus:ring-2 focus:ring-primary"
+            placeholder="Search by title, subject, or course"
+            className="input input-bordered w-full md:flex-1"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
           />
+
+          {category === "Edu" && (
+            <>
+              <input
+                type="text"
+                placeholder="Class Level (e.g. 10th)"
+                className="input input-bordered w-full md:w-40"
+                value={classLevel}
+                onChange={(e) => setClassLevel(e.target.value)}
+              />
+
+              <input
+                type="text"
+                placeholder="Subject (e.g. Math)"
+                className="input input-bordered w-full md:w-40"
+                value={subject}
+                onChange={(e) => setSubject(e.target.value)}
+              />
+            </>
+          )}
         </div>
 
-        {/* Popular Courses */}
-        <section>
-          <h2 className="text-2xl font-bold mb-4 text-primary">
-            Popular Courses
-          </h2>
-          {popularCourses.length > 0 ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {popularCourses.map((course) => (
-                <CourseCard key={course._id} course={course} />
-              ))}
-            </div>
-          ) : (
-            <p className="text-gray-500">No popular courses available.</p>
-          )}
-        </section>
-
-        {/* Frequently Opened Courses */}
-        <section>
-          <h2 className="text-2xl font-bold mb-4 text-primary">
-            Frequently Opened Courses
-          </h2>
-          {frequentCourses.length > 0 ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {frequentCourses.map((course) => (
-                <CourseCard key={course._id} course={course} />
-              ))}
-            </div>
-          ) : (
-            <p className="text-gray-500">
-              No frequently opened courses available.
-            </p>
-          )}
-        </section>
-
-        {/* All Courses with Search */}
-        <section>
-          <h2 className="text-2xl font-bold mb-4 text-primary">All Courses</h2>
-          {filteredCourses.length > 0 ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {filteredCourses.map((course) => (
-                <CourseCard key={course._id} course={course} />
-              ))}
-            </div>
-          ) : (
-            <p className="text-gray-500">
-              No courses found matching your search.
-            </p>
-          )}
-        </section>
+        {/* Results */}
+        {loading ? (
+          <div className="text-center text-gray-500 py-20">
+            Loading courses...
+          </div>
+        ) : filteredLectures.length > 0 ? (
+          <div className="grid gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
+            {filteredLectures.map((lecture) => (
+              <CourseCard key={lecture._id} lecture={lecture} />
+            ))}
+          </div>
+        ) : (
+          <div className="text-center text-gray-500 py-20">
+            No courses found for your filters.
+          </div>
+        )}
       </div>
     </div>
   );
-}
+};
 
-// Reusable Course Card component
-function CourseCard({ course }) {
-  return (
-    <div className="card bg-base-100 shadow-md rounded-2xl overflow-hidden hover:shadow-lg transition-transform transform hover:-translate-y-1">
-      <figure>
-        <img
-          src={course.thumbnail || "https://via.placeholder.com/300x200"}
-          alt={course.title}
-          className="h-40 w-full object-cover"
-        />
-      </figure>
-      <div className="card-body p-4">
-        <h3 className="card-title text-lg font-semibold text-gray-800">
-          {course.title}
-        </h3>
-        <p className="text-sm text-gray-600 mt-1">{course.description}</p>
-        <div className="card-actions justify-end mt-3">
-          <a href={`/course/${course._id}`} className="btn btn-primary btn-sm">
-            Watch Now
-          </a>
-        </div>
-      </div>
-    </div>
-  );
-}
+export default Courses;
