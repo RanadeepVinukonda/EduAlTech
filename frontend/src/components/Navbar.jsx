@@ -1,18 +1,16 @@
 // Navbar.jsx
 import React from "react";
-import { Link, NavLink, useNavigate } from "react-router-dom";
+import { Link, NavLink } from "react-router-dom";
 import { useAuth } from "../context/AuthProvider";
 import { toast } from "react-hot-toast";
 
 export default function Navbar() {
   const { user, logout } = useAuth();
-  const navigate = useNavigate();
 
   const handleLogout = async () => {
     try {
       await logout();
       toast.success("Logged out successfully!");
-      navigate("/login");
     } catch {
       toast.error("Logout failed");
     }
@@ -27,8 +25,9 @@ export default function Navbar() {
             EduAltTech
           </Link>
 
-          {/* Navigation Links */}
-          <div className="flex space-x-6">
+          {/* Links + Auth */}
+          <div className="flex items-center space-x-6">
+            {/* Main Links */}
             <NavLink
               to="/"
               className={({ isActive }) =>
@@ -69,12 +68,14 @@ export default function Navbar() {
             >
               Contact
             </NavLink>
-          </div>
 
-          {/* Authentication Buttons */}
-          <div className="flex items-center space-x-3">
+            {/* Spacer */}
+            <div className="border-l border-gray-300 h-6 mx-3"></div>
+
+            {/* Auth Buttons / Profile */}
             {user ? (
-              <>
+              <div className="flex items-center space-x-3">
+                {/* Provider/Admin Links */}
                 {user.role === "provider" && (
                   <NavLink
                     to="/my-lectures"
@@ -103,25 +104,35 @@ export default function Navbar() {
                     Admin
                   </NavLink>
                 )}
-                <NavLink
-                  to="/profile"
-                  className={({ isActive }) =>
-                    `hover:text-primary ${
-                      isActive ? "text-primary font-semibold" : "text-gray-700"
-                    }`
-                  }
-                >
-                  Profile
-                </NavLink>
-                <button
-                  onClick={handleLogout}
-                  className="btn btn-sm btn-outline btn-primary ml-2"
-                >
-                  Logout
-                </button>
-              </>
+
+                {/* Profile Dropdown */}
+                <div className="dropdown dropdown-end">
+                  <label
+                    tabIndex={0}
+                    className="btn btn-ghost btn-circle avatar"
+                  >
+                    <div className="w-10 rounded-full">
+                      <img
+                        src={user.profilePic || "/default-avatar.png"}
+                        alt="Profile"
+                      />
+                    </div>
+                  </label>
+                  <ul
+                    tabIndex={0}
+                    className="mt-3 p-2 shadow menu menu-compact dropdown-content bg-base-100 rounded-box w-40"
+                  >
+                    <li>
+                      <NavLink to="/profile">Profile</NavLink>
+                    </li>
+                    <li>
+                      <button onClick={handleLogout}>Logout</button>
+                    </li>
+                  </ul>
+                </div>
+              </div>
             ) : (
-              <>
+              <div className="flex items-center space-x-3">
                 <NavLink to="/login" className="btn btn-sm btn-primary">
                   Login
                 </NavLink>
@@ -131,7 +142,7 @@ export default function Navbar() {
                 >
                   Signup
                 </NavLink>
-              </>
+              </div>
             )}
           </div>
         </div>
