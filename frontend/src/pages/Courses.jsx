@@ -16,7 +16,7 @@ const Courses = () => {
     const fetchLectures = async () => {
       try {
         setLoading(true);
-        const { data } = await api.get("/lectures/all");
+        const { data } = await api.get("/courses/all");
 
         if (Array.isArray(data)) {
           setLectures(data);
