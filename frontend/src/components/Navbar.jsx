@@ -113,7 +113,10 @@ export default function Navbar() {
                   >
                     <div className="w-10 rounded-full">
                       <img
-                        src={user.profilePic}
+                        src={
+                          user.profileImg ||
+                          `https://placehold.co/120x120?text=${user.username}`
+                        }
                         alt="Profile"
                       />
                     </div>
