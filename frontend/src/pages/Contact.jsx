@@ -32,7 +32,7 @@ const teamMembers = [
     role: "Backend Engineer",
     email: "ukkukk97@gmail.com",
     phone: "+91 9121505879",
-    image: "/team/uma.jpeg",
+    image: "/assets/team/uma.jpeg",
     linkedin:
       "https://www.linkedin.com/in/chokkapu-uma-krishna-kanth-50a502288/",
   },
