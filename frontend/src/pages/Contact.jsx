@@ -3,7 +3,7 @@ import React from "react";
 import { FaLinkedin } from "react-icons/fa";
 import umaImg from "../assets/team/uma.jpeg";
 import chandhiniImg from "../assets/team/chandhiniimg.jpeg";
-import  ranadeepImg from "../assets/team/ranadeepimg.jpeg";
+import  ranadeepImg from "../assets/team/ranadeepimg2.jpeg";
 import gnanaImg from "../assets/team/gnanaimg.jpeg";
 import lavarajImg from "../assets/team/lavarajimg.jpeg";
 import satishImg from "../assets/team/satishimg.jpeg";
