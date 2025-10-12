@@ -1,6 +1,6 @@
 // src/pages/CoursePlayer.jsx
 import React, { useEffect, useState } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams, useNavigate } from "react-router";
 import api from "../axios";
 import { toast } from "react-hot-toast";
 import { ArrowLeft } from "lucide-react";
