@@ -2,6 +2,10 @@
 import React from "react";
 import { FaLinkedin } from "react-icons/fa";
 import umaImg from "../assets/team/uma.jpeg";
+import chandhiniImg from "../assets/team/chandhiniimg.jpeg";
+import gnanaImg from "../assets/team/gnanaimg.jpeg";
+import lavarajImg from "../assets/team/lavarajimg.jpeg";
+import satishImg from "../assets/team/satishimg.jpeg";
 
 const teamMembers = [
   {
@@ -17,7 +21,7 @@ const teamMembers = [
     role: "Developer",
     email: "satya@example.com",
     phone: "+91 9876543210",
-    image: "/team/ananya.jpg",
+    image: satishImg,
     linkedin: "",
   },
   {
@@ -26,7 +30,7 @@ const teamMembers = [
     email: "rihab@example.com",
     phone: "+91 9012345678",
     image: "/team/ravi.jpg",
-    linkedin: "",
+    linkedin: chandhiniImg,
   },
   {
     name: "Uma Krishna Kanth Chokkapu",
@@ -42,7 +46,7 @@ const teamMembers = [
     role: "Customer service Manager",
     email: "lavaraju5751@gmail.com",
     phone: "+91 8497981640",
-    image: "/team/ravi.jpg",
+    image: lavarajImg,
     linkedin: "https://www.linkedin.com/in/lavaraju-undefined-724448323/",
   },
   {
@@ -50,10 +54,17 @@ const teamMembers = [
     role: "Chief Human Resource Officer",
     email: "gnanasribathina@gmail.com",
     phone: "",
-    image: "/team/ravi.jpg",
+    image: gnanaImg,
     linkedin: "",
   },
-
+  {
+    name: "Kakara Sandeep",
+    role: "",
+    email: "",
+    phone: "",
+    image: "",
+    linkedin: "",
+  },
 ];
 
 const Contact = () => {
