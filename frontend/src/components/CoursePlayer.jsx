@@ -1,26 +1,22 @@
-// src/pages/CoursePlayer.jsx
 import React, { useEffect, useState } from "react";
-import { useParams, Link } from "react-router-dom";
+import { useParams, useNavigate } from "react-router";
 import api from "../axios";
 import { toast } from "react-hot-toast";
 import { ArrowLeft } from "lucide-react";
 
 const CoursePlayer = () => {
   const { id } = useParams();
+  const navigate = useNavigate();
   const [lecture, setLecture] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  // Fetch lecture by ID
   const fetchLecture = async () => {
     try {
-      setLoading(true);
-      const res = await api.get(`/courses/lecture/${id}`, {
-        withCredentials: true,
-      });
+      const res = await api.get(`/courses/${id}`, { withCredentials: true });
       setLecture(res.data);
     } catch (err) {
       console.error(err);
-      toast.error("Failed to load lecture.");
+      toast.error("Failed to load lecture");
     } finally {
       setLoading(false);
     }
@@ -30,93 +26,80 @@ const CoursePlayer = () => {
     fetchLecture();
   }, [id]);
 
-  if (loading) {
-    return <p className="text-center mt-10 text-gray-500">Loading course...</p>;
-  }
-
-  if (!lecture) {
+  if (loading) return <p className="text-center mt-10">Loading...</p>;
+  if (!lecture)
     return <p className="text-center mt-10 text-red-600">Lecture not found.</p>;
-  }
+
+  const materials = Array.isArray(lecture.materials) ? lecture.materials : [];
 
   return (
-    <div className="min-h-screen bg-neutral px-4 py-8 sm:px-6 lg:px-8">
-      {/* Header with Back Button */}
-      <div className="max-w-5xl mx-auto mb-6 flex items-center justify-between">
-        <Link
-          to={-1}
-          className="flex items-center text-green-700 hover:text-green-800 font-medium transition"
-        >
-          <ArrowLeft className="w-5 h-5 mr-1" />
-          Back
-        </Link>
+    <div className="max-w-5xl mx-auto py-8 px-4">
+      {/* Back Button */}
+      <button
+        onClick={() => navigate(-1)}
+        className="flex items-center gap-2 text-green-700 hover:text-green-800 mb-6"
+      >
+        <ArrowLeft size={20} />
+        Back
+      </button>
+
+      <h2 className="text-3xl font-bold text-green-700 mb-2">
+        {lecture.title}
+      </h2>
+      <p className="text-gray-500 mb-6">{lecture.description}</p>
+
+      {/* Video Player */}
+      <div className="w-full aspect-video bg-black rounded-2xl overflow-hidden shadow-lg mb-8">
+        <video
+          src={lecture.video}
+          controls
+          className="w-full h-full object-cover"
+        />
       </div>
 
-      {/* Lecture Info */}
-      <div className="max-w-5xl mx-auto bg-white rounded-2xl shadow p-6 sm:p-8">
-        <h2 className="text-3xl font-bold text-green-700 mb-4">
-          {lecture.title || "Untitled Lecture"}
-        </h2>
-        <p className="text-gray-600 mb-6 leading-relaxed">
-          {lecture.description || "No description available for this lecture."}
-        </p>
+      {/* Materials Section */}
+      {materials.length > 0 && (
+        <div className="mt-4 space-y-6">
+          <h3 className="text-2xl font-semibold text-green-700 mb-2">
+            Supporting Materials
+          </h3>
 
-        {/* Video Player */}
-        {lecture.video ? (
-          <div className="w-full aspect-video mb-8 bg-black rounded-lg overflow-hidden">
-            <video
-              src={lecture.video}
-              controls
-              className="w-full h-full object-cover"
-            />
-          </div>
-        ) : (
-          <p className="text-gray-500 mb-8">
-            No video available for this course.
-          </p>
-        )}
+          {materials.map((file, idx) => {
+            // Handle both string URLs and object formats safely
+            const url = typeof file === "string" ? file : file.url || "";
+            const name =
+              typeof file === "string"
+                ? file.split("/").pop()
+                : file.name || "Material";
 
-        {/* Embedded PDF (if any material is a PDF) */}
-        {lecture.materials?.some((m) => m.endsWith(".pdf")) && (
-          <div className="mb-8">
-            <h3 className="text-xl font-semibold text-green-700 mb-3">
-              Course Notes / PDF
-            </h3>
-            {lecture.materials
-              .filter((file) => file.endsWith(".pdf"))
-              .map((pdf, idx) => (
-                <iframe
-                  key={idx}
-                  src={pdf}
-                  title={`PDF-${idx}`}
-                  className="w-full h-[500px] border rounded-lg shadow"
-                />
-              ))}
-          </div>
-        )}
+            if (!url) return null;
 
-        {/* Supporting Materials */}
-        {lecture.materials?.length > 0 && (
-          <div className="mt-6">
-            <h3 className="text-xl font-semibold text-green-700 mb-2">
-              Supporting Materials
-            </h3>
-            <ul className="space-y-2">
-              {lecture.materials.map((file, idx) => (
-                <li key={idx}>
+            return (
+              <div key={idx} className="bg-gray-50 p-4 rounded-lg shadow">
+                <p className="font-medium text-gray-700 mb-2">{name}</p>
+
+                {/* If it's a PDF, embed it directly */}
+                {url.toLowerCase().endsWith(".pdf") ? (
+                  <iframe
+                    src={url}
+                    className="w-full h-[500px] border rounded-lg"
+                    title={`PDF-${idx}`}
+                  />
+                ) : (
                   <a
-                    href={file}
+                    href={url}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="text-blue-600 hover:text-blue-800 underline break-all"
+                    className="text-blue-600 underline"
                   >
-                    {file.split("/").pop()}
+                    View / Download Material
                   </a>
-                </li>
-              ))}
-            </ul>
-          </div>
-        )}
-      </div>
+                )}
+              </div>
+            );
+          })}
+        </div>
+      )}
     </div>
   );
 };
