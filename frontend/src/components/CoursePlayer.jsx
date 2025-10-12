@@ -14,7 +14,7 @@ const CoursePlayer = () => {
   const fetchLecture = async () => {
     try {
       setLoading(true);
-      const res = await api.get(`/lectures/lecture/${id}`, {
+      const res = await api.get(`/courses/lecture/${id}`, {
         withCredentials: true,
       });
       setLecture(res.data);
