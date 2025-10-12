@@ -1,6 +1,7 @@
 // Contact.jsx
 import React from "react";
 import { FaLinkedin } from "react-icons/fa";
+import umaImg from "../assets/team/uma.jpeg";
 
 const teamMembers = [
   {
@@ -32,7 +33,7 @@ const teamMembers = [
     role: "Backend Engineer",
     email: "ukkukk97@gmail.com",
     phone: "+91 9121505879",
-    image: "/assets/team/uma.jpeg",
+    image: umaImg,
     linkedin:
       "https://www.linkedin.com/in/chokkapu-uma-krishna-kanth-50a502288/",
   },
