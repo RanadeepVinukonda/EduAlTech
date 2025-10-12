@@ -142,7 +142,7 @@ const Courses = () => {
         )}
       </div>
     </div>
-  );
+  );  
 };
 
 export default Courses;
