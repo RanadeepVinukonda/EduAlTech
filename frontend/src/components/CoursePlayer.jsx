@@ -1,13 +1,12 @@
 // src/pages/CoursePlayer.jsx
 import React, { useEffect, useState } from "react";
-import { useParams, useNavigate } from "react-router";
+import { useParams, Link } from "react-router";
 import api from "../axios";
 import { toast } from "react-hot-toast";
 import { ArrowLeft } from "lucide-react";
 
 const CoursePlayer = () => {
   const { id } = useParams();
-  const navigate = useNavigate();
   const [lecture, setLecture] = useState(null);
   const [loading, setLoading] = useState(true);
 
@@ -15,7 +14,7 @@ const CoursePlayer = () => {
   const fetchLecture = async () => {
     try {
       setLoading(true);
-      const res = await api.get(`/courses/lecture/${id}`, {
+      const res = await api.get(`/lectures/lecture/${id}`, {
         withCredentials: true,
       });
       setLecture(res.data);
@@ -43,13 +42,13 @@ const CoursePlayer = () => {
     <div className="min-h-screen bg-neutral px-4 py-8 sm:px-6 lg:px-8">
       {/* Header with Back Button */}
       <div className="max-w-5xl mx-auto mb-6 flex items-center justify-between">
-        <button
-          onClick={() => navigate(-1)}
+        <Link
+          to={-1}
           className="flex items-center text-green-700 hover:text-green-800 font-medium transition"
         >
           <ArrowLeft className="w-5 h-5 mr-1" />
           Back
-        </button>
+        </Link>
       </div>
 
       {/* Lecture Info */}
