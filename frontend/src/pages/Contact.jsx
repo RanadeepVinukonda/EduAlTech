@@ -3,38 +3,39 @@ import React from "react";
 import { FaLinkedin } from "react-icons/fa";
 import umaImg from "../assets/team/uma.jpeg";
 import chandhiniImg from "../assets/team/chandhiniimg.jpeg";
+import  ranadeepImg from "../assets/team/ranadeepimg.jpeg";
 import gnanaImg from "../assets/team/gnanaimg.jpeg";
 import lavarajImg from "../assets/team/lavarajimg.jpeg";
 import satishImg from "../assets/team/satishimg.jpeg";
 
 const teamMembers = [
   {
-    name: "Ranadeep Vinukonda",
-    role: "Full Stack Developer",
-    email: "viranadeep@gmail.com",
-    phone: "+91 8919473722",
-    image: "/team/ranadeep.jpg",
-    linkedin: "https://www.linkedin.com/in/ranadeepvinukonda",
-  },
-  {
-    name: "Satyanarayana Akula",
-    role: "Developer",
-    email: "satya@example.com",
-    phone: "+91 9876543210",
-    image: satishImg,
-    linkedin: "",
-  },
-  {
     name: "Al Rihab Chandhini",
-    role: "Content Manager",
+    role: "Chief Executive Officer",
     email: "rihab@example.com",
     phone: "+91 9012345678",
     image: chandhiniImg,
     linkedin: "https://www.linkedin.com/in/al-rihab-chandhini-4b3b25228/",
   },
   {
+    name: "Ranadeep Vinukonda",
+    role: "Chief Technology Officer",
+    email: "viranadeep@gmail.com",
+    phone: "+91 8919473722",
+    image: ranadeepImg,
+    linkedin: "https://www.linkedin.com/in/ranadeepvinukonda",
+  },
+  {
+    name: "Satyanarayana Akula",
+    role: "Chief Operating Officer",
+    email: " akulasatish49@gmail.com",
+    phone: "+91 9876543210",
+    image: satishImg,
+    linkedin: "https://www.linkedin.com/in/satyanarayana-akula-785565304/",
+  },
+  {
     name: "Uma Krishna Kanth Chokkapu",
-    role: "Backend Engineer",
+    role: "Chief Financial Officer",
     email: "ukkukk97@gmail.com",
     phone: "+91 9121505879",
     image: umaImg,
@@ -42,8 +43,16 @@ const teamMembers = [
       "https://www.linkedin.com/in/chokkapu-uma-krishna-kanth-50a502288/",
   },
   {
+    name: "Kakara Sandeep",
+    role: "Chief Marketing Officer",
+    email: "sandeepkakara2005@gmail.com",
+    phone: "+91 93461 05182",
+    image: "",
+    linkedin: "https://www.linkedin.com/in/kakara-sandeep-63b6952b8/",
+  },
+  {
     name: "LavaRaju",
-    role: "Customer service Manager",
+    role: "Customer Service Manager",
     email: "lavaraju5751@gmail.com",
     phone: "+91 8497981640",
     image: lavarajImg,
@@ -53,17 +62,10 @@ const teamMembers = [
     name: "Gnana Sri",
     role: "Chief Human Resource Officer",
     email: "gnanasribathina@gmail.com",
-    phone: "",
+    phone: "+91 75691 97763",
     image: gnanaImg,
-    linkedin: "",
-  },
-  {
-    name: "Kakara Sandeep",
-    role: "",
-    email: "",
-    phone: "",
-    image: "",
-    linkedin: "",
+    linkedin:
+      "https://www.linkedin.com/in/bathina-gnana-sri-lakshmi-52705432a/",
   },
 ];
 
