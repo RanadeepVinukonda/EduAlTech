@@ -29,8 +29,8 @@ const teamMembers = [
     role: "Content Manager",
     email: "rihab@example.com",
     phone: "+91 9012345678",
-    image: "/team/ravi.jpg",
-    linkedin: chandhiniImg,
+    image: chandhiniImg,
+    linkedin: "https://www.linkedin.com/in/al-rihab-chandhini-4b3b25228/",
   },
   {
     name: "Uma Krishna Kanth Chokkapu",
