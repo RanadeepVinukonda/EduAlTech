@@ -13,10 +13,19 @@ const teamMembers = [
   {
     name: "Al Rihab Chandhini",
     role: "Chief Executive Officer",
-    email: "rihab@example.com",
-    phone: "+91 9012345678",
+    email: "alrihabchandhinimohammed@gmail.com",
+    phone: "+91 80191 25121",
     image: chandhiniImg,
     linkedin: "https://www.linkedin.com/in/al-rihab-chandhini-4b3b25228/",
+  },
+  {
+    name: "Uma Krishna Kanth Chokkapu",
+    role: "Chief Financial Officer",
+    email: "ukkukk97@gmail.com",
+    phone: "+91 9121505879",
+    image: umaImg,
+    linkedin:
+      "https://www.linkedin.com/in/chokkapu-uma-krishna-kanth-50a502288/",
   },
   {
     name: "Ranadeep Vinukonda",
@@ -29,19 +38,10 @@ const teamMembers = [
   {
     name: "Satyanarayana Akula",
     role: "Chief Operating Officer",
-    email: " akulasatish49@gmail.com",
+    email: "akulasatish49@gmail.com",
     phone: "+91 9876543210",
     image: satishImg,
     linkedin: "https://www.linkedin.com/in/satyanarayana-akula-785565304/",
-  },
-  {
-    name: "Uma Krishna Kanth Chokkapu",
-    role: "Chief Financial Officer",
-    email: "ukkukk97@gmail.com",
-    phone: "+91 9121505879",
-    image: umaImg,
-    linkedin:
-      "https://www.linkedin.com/in/chokkapu-uma-krishna-kanth-50a502288/",
   },
   {
     name: "Kakara Sandeep",
@@ -82,11 +82,12 @@ const Contact = () => {
           directly!
         </p>
 
-        <div className="grid gap-8 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+        {/* HORIZONTAL SCROLL SECTION */}
+        <div className="flex gap-6 overflow-x-auto pb-6 px-2 scrollbar-thin scrollbar-thumb-green-400 scrollbar-track-green-100">
           {teamMembers.map((member, idx) => (
             <div
               key={idx}
-              className="bg-green-50 shadow-md rounded-xl p-6 hover:shadow-xl transition-all duration-300"
+              className="min-w-[260px] sm:min-w-[300px] bg-green-50 shadow-md rounded-xl p-6 hover:shadow-xl transition-all duration-300 flex-shrink-0"
             >
               <img
                 src={member.image}
