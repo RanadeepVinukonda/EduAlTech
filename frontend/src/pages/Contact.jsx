@@ -71,6 +71,9 @@ const teamMembers = [
 ];
 
 const Contact = () => {
+  // Duplicate members array to make seamless auto scroll
+  const scrollingMembers = [...teamMembers, ...teamMembers];
+
   return (
     <div className="min-h-screen bg-white px-4 py-12 sm:px-6 lg:px-8">
       <div className="max-w-6xl mx-auto text-center">
@@ -82,52 +85,54 @@ const Contact = () => {
           directly!
         </p>
 
-        {/* HORIZONTAL SCROLL SECTION */}
-        <div className="flex gap-6 overflow-x-auto pb-6 px-2 custom-scrollbar">
-          {teamMembers.map((member, idx) => (
-            <div
-              key={idx}
-              className="min-w-[260px] sm:min-w-[300px] bg-green-50 shadow-md rounded-xl p-6 hover:shadow-xl transition-all duration-300 flex-shrink-0"
-            >
-              <img
-                src={member.image}
-                alt={member.name}
-                className="w-24 h-24 rounded-full mx-auto object-cover border-4 border-white shadow-md"
-              />
-              <h3 className="text-xl font-semibold text-green-700 mt-4">
-                {member.name}
-              </h3>
-              <p className="text-green-500 text-sm mb-2">
-                {member.role || "Team Member"}
-              </p>
+        {/* AUTO SCROLL HORIZONTAL CARDS */}
+        <div className="relative w-full overflow-hidden">
+          <div className="flex gap-6 animate-scroll whitespace-nowrap">
+            {scrollingMembers.map((member, idx) => (
+              <div
+                key={idx}
+                className="inline-block min-w-[260px] sm:min-w-[300px] bg-green-50 shadow-md rounded-xl p-6 hover:shadow-xl transition-all duration-300"
+              >
+                <img
+                  src={member.image}
+                  alt={member.name}
+                  className="w-24 h-24 rounded-full mx-auto object-cover border-4 border-white shadow-md"
+                />
+                <h3 className="text-xl font-semibold text-green-700 mt-4">
+                  {member.name}
+                </h3>
+                <p className="text-green-500 text-sm mb-2">
+                  {member.role || "Team Member"}
+                </p>
 
-              <div className="text-sm text-gray-700 space-y-1 mt-2">
-                {member.email && (
-                  <p>
-                    <span className="font-medium">Email:</span> {member.email}
-                  </p>
-                )}
-                {member.phone && (
-                  <p>
-                    <span className="font-medium">Phone:</span> {member.phone}
-                  </p>
+                <div className="text-sm text-gray-700 space-y-1 mt-2">
+                  {member.email && (
+                    <p>
+                      <span className="font-medium">Email:</span> {member.email}
+                    </p>
+                  )}
+                  {member.phone && (
+                    <p>
+                      <span className="font-medium">Phone:</span> {member.phone}
+                    </p>
+                  )}
+                </div>
+
+                {member.linkedin && (
+                  <div className="mt-4">
+                    <a
+                      href={member.linkedin}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-2 text-blue-600 hover:underline text-sm"
+                    >
+                      <FaLinkedin size={18} /> LinkedIn Profile
+                    </a>
+                  </div>
                 )}
               </div>
-
-              {member.linkedin && (
-                <div className="mt-4">
-                  <a
-                    href={member.linkedin}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-flex items-center gap-2 text-blue-600 hover:underline text-sm"
-                  >
-                    <FaLinkedin size={18} /> LinkedIn Profile
-                  </a>
-                </div>
-              )}
-            </div>
-          ))}
+            ))}
+          </div>
         </div>
       </div>
     </div>
