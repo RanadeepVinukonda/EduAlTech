@@ -83,7 +83,7 @@ const Contact = () => {
         </p>
 
         {/* HORIZONTAL SCROLL SECTION */}
-        <div className="flex gap-6 overflow-x-auto pb-6 px-2 scrollbar-thin scrollbar-thumb-green-400 scrollbar-track-green-100">
+        <div className="flex gap-6 overflow-x-auto pb-6 px-2 custom-scrollbar">
           {teamMembers.map((member, idx) => (
             <div
               key={idx}
