@@ -139,3 +139,23 @@ export const resetPassword = async (req, res) => {
     res.status(500).json({ msg: "Server Error" });
   }
 };
+export const submitContact = async (req, res) => {
+  try {
+    const { name, email, phone, message } = req.body;
+
+    if (!name || !email || !message) {
+      return res
+        .status(400)
+        .json({ error: "Name, email, and message are required." });
+    }
+
+    const newContact = new Contact({ name, email, phone, message });
+    await newContact.save();
+
+    res
+      .status(201)
+      .json({ message: "Your message has been sent successfully!" });
+  } catch (err) {
+    res.status(500).json({ error: "Server error. Please try again later." });
+  }
+};

@@ -3,6 +3,7 @@ import {
   updateUser,
   forgotPassword,
   resetPassword,
+  submitContact
 } from "../controllers/userController.js";
 import { protectRoute } from "../middleware/auth.js";
 import multer from "multer";
@@ -22,5 +23,6 @@ router.put(
 
 router.post("/forgot-password", forgotPassword);
 router.post("/reset-password/:token", resetPassword);
+router.post("/submit", submitContact);
 
 export default router;
