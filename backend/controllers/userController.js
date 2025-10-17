@@ -3,6 +3,7 @@ import User from "../models/usermodel.js";
 import bcrypt from "bcryptjs";
 import crypto from "crypto";
 import sendMail from "../sendMail.js";
+import Contact from "../models/contactmodel.js";
 
 // helper: upload buffer to cloudinary
 const uploadToCloudinary = (buffer, folder) => {
