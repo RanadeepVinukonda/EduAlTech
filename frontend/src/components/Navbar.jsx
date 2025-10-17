@@ -22,7 +22,7 @@ export default function Navbar() {
         <div className="flex justify-between h-16 items-center">
           {/* Logo */}
           <Link to="/" className="text-primary font-bold text-2xl">
-            EduAltTech
+            EduAlTech
           </Link>
 
           {/* Links + Auth */}
