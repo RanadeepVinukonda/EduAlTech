@@ -57,6 +57,7 @@ const App = () => (
               </ProtectedRoute>
             }
           />
+          <Route path="/course/:id/subscribe" element={<Subscribe />} />
           <Route
             path="/course/:id"
             element={

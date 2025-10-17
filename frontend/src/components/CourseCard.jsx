@@ -9,8 +9,8 @@ const CourseCard = ({ lecture }) => {
   const [demoVideo, setDemoVideo] = useState(null);
   const [message, setMessage] = useState("");
 
-  // Listen flow: redirect to subscription/payment
-  const handleListen = () => {
+  // Listen/Learn flow: go to Subscribe.jsx
+  const handleLearn = () => {
     navigate(`/course/${lecture._id}/subscribe`);
   };
 
@@ -70,8 +70,8 @@ const CourseCard = ({ lecture }) => {
 
       {/* Actions */}
       <div className="flex flex-col gap-2 mt-auto">
-        <button onClick={handleListen} className="btn btn-success w-full">
-          Listen (Subscribe)
+        <button onClick={handleLearn} className="btn btn-success w-full">
+          Learn (Subscribe)
         </button>
         <button
           onClick={handleTeach}
