@@ -16,6 +16,7 @@ import Login from "./pages/Login";
 import Profile from "./pages/Profile";
 import UpdateProfile from "./pages/UpdateProfile";
 import CoursePlayer from "./pages/CoursePlayer";
+import Subscribe from "./pages/subscribe";
 import MyLectures from "./pages/MyLectures";
 import AdminDashboard from "./pages/AdminDashboard";
 import ForgotPassword from "./pages/ForgotPassword";
