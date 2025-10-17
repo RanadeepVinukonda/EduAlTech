@@ -1,12 +1,37 @@
 // src/components/CourseCard.jsx
-import React from "react";
+import React, { useState } from "react";
 import { useNavigate } from "react-router";
 
 const CourseCard = ({ lecture }) => {
   const navigate = useNavigate();
+  const [showTeachModal, setShowTeachModal] = useState(false);
+  const [resume, setResume] = useState(null);
+  const [demoVideo, setDemoVideo] = useState(null);
+  const [message, setMessage] = useState("");
 
-  const handleWatchNow = () => {
-    navigate(`/course/${lecture._id}`);
+  // Listen flow: redirect to subscription/payment
+  const handleListen = () => {
+    navigate(`/course/${lecture._id}/subscribe`);
+  };
+
+  // Teach flow: open modal
+  const handleTeach = () => {
+    setShowTeachModal(true);
+  };
+
+  const handleSubmitTeach = (e) => {
+    e.preventDefault();
+    if (!resume && !demoVideo) {
+      setMessage("Please upload at least a resume or demo video.");
+      return;
+    }
+    // TODO: submit resume/demo to backend or schedule meeting
+    console.log("Resume:", resume);
+    console.log("Demo Video:", demoVideo);
+    setMessage("Application submitted successfully!");
+    setResume(null);
+    setDemoVideo(null);
+    setShowTeachModal(false);
   };
 
   return (
@@ -43,13 +68,59 @@ const CourseCard = ({ lecture }) => {
         )}
       </div>
 
-      {/* Watch Now Button */}
-      <button
-        onClick={handleWatchNow}
-        className="btn btn-success mt-auto w-full"
-      >
-        Watch Now
-      </button>
+      {/* Actions */}
+      <div className="flex flex-col gap-2 mt-auto">
+        <button onClick={handleListen} className="btn btn-success w-full">
+          Listen (Subscribe)
+        </button>
+        <button
+          onClick={handleTeach}
+          className="btn btn-outline btn-primary w-full"
+        >
+          Teach (Apply)
+        </button>
+      </div>
+
+      {/* Teach Modal */}
+      {showTeachModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-base-100 rounded-lg shadow-lg p-6 w-full max-w-md relative">
+            <button
+              onClick={() => setShowTeachModal(false)}
+              className="absolute top-2 right-2 text-gray-500 hover:text-gray-800"
+            >
+              ✖
+            </button>
+            <h2 className="text-xl font-bold text-primary mb-4">
+              Apply to Teach
+            </h2>
+            <form onSubmit={handleSubmitTeach} className="flex flex-col gap-4">
+              <label className="flex flex-col">
+                Upload Resume:
+                <input
+                  type="file"
+                  accept=".pdf,.doc,.docx"
+                  onChange={(e) => setResume(e.target.files[0])}
+                  className="file-input file-input-bordered file-input-primary mt-1"
+                />
+              </label>
+              <label className="flex flex-col">
+                Upload Demo Video:
+                <input
+                  type="file"
+                  accept="video/*"
+                  onChange={(e) => setDemoVideo(e.target.files[0])}
+                  className="file-input file-input-bordered file-input-primary mt-1"
+                />
+              </label>
+              <button type="submit" className="btn btn-primary">
+                Submit Application
+              </button>
+              {message && <p className="text-success font-medium">{message}</p>}
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
