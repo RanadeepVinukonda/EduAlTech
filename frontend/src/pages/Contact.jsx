@@ -11,14 +11,6 @@ import sandeepImg from "../assets/team/sandeepimg.jpeg";
 
 const teamMembers = [
   {
-    name: "Al Rihab Chandhini",
-    role: "Chief Executive Officer",
-    email: "alrihabchandhinimohammed@gmail.com",
-    phone: "+91 80191 25121",
-    image: chandhiniImg,
-    linkedin: "https://www.linkedin.com/in/al-rihab-chandhini-4b3b25228/",
-  },
-  {
     name: "Uma Krishna Kanth Chokkapu",
     role: "Chief Financial Officer",
     email: "ukkukk97@gmail.com",
@@ -26,6 +18,14 @@ const teamMembers = [
     image: umaImg,
     linkedin:
       "https://www.linkedin.com/in/chokkapu-uma-krishna-kanth-50a502288/",
+  },
+  {
+    name: "Al Rihab Chandhini",
+    role: "Chief Executive Officer",
+    email: "alrihabchandhinimohammed@gmail.com",
+    phone: "+91 80191 25121",
+    image: chandhiniImg,
+    linkedin: "https://www.linkedin.com/in/al-rihab-chandhini-4b3b25228/",
   },
   {
     name: "Ranadeep Vinukonda",

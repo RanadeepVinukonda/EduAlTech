@@ -109,35 +109,6 @@ const Home = () => {
         </ul>
       </div>
 
-      {/* VALUE PROPOSITIONS */}
-      <div className="max-w-6xl mx-auto mt-20">
-        <h2 className="text-3xl font-bold text-green-600 text-center mb-10">
-          Why Choose Us?
-        </h2>
-        <ul className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-8">
-          <ValuePropCard
-            icon={affordableIcon}
-            title="Affordable & Accessible"
-            text="Quality education that’s affordable and reachable for everyone."
-          />
-          <ValuePropCard
-            icon={mentorshipIcon}
-            title="24/7 Mentorship"
-            text="Get instant help and continuous guidance from real mentors."
-          />
-          <ValuePropCard
-            icon={practicalIcon}
-            title="Practical Learning"
-            text="Hands-on courses that focus on skills you can apply immediately."
-          />
-          <ValuePropCard
-            icon={communityIcon}
-            title="Community & Networking"
-            text="Connect, collaborate, and grow with like-minded learners and educators."
-          />
-        </ul>
-      </div>
-
       {/* FINAL CTA */}
       <div className="text-center mt-16">
         {!user ? (
